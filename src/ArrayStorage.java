@@ -4,8 +4,6 @@ import java.util.Arrays;
  * Array based storage for Resumes
  */
 public class ArrayStorage {
-    // Increase rate for new storage when we filled up the old one
-    static private final double GROWTH_RATE = 1.5;
     // The number of elements actually stored in array
     private int size = 0;
     // Storage for Resume objects
@@ -21,11 +19,11 @@ public class ArrayStorage {
     // Place new Resume obj at the end of the previously stored
     // objects succession.
     void save(Resume r) {
+        /* Check if we're runnig out of storage space.
+           No nothing is such case.
+         */
         if(size == storage.length) {
-            storage = Arrays.copyOf(
-                    storage,
-                    (int)Math.ceil(storage.length*GROWTH_RATE)
-            );
+            return;
         }
 
         storage[size] = r;
@@ -47,8 +45,8 @@ public class ArrayStorage {
     void delete(String uuid) {
         for(int i = 0; i < size; i++) {
             if(uuid.equals(storage[i].uuid)) {
-                // Copy the last element in place
-                // of the removed one to fill the gap
+                // Swap found element and the last one
+                // to fill the gap
                 storage[i] = storage[size-1];
                 storage[size-1] = null;
                 size--;
@@ -69,7 +67,6 @@ public class ArrayStorage {
 
     // Get the number of the Resumes in array.
     int size() {
-
         return size;
     }
 }
