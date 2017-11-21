@@ -1,6 +1,6 @@
-package com.urise.webapp.storage;
+package ru.javawebinar.basejava.storage;
 
-import com.urise.webapp.model.Resume;
+import ru.javawebinar.basejava.model.Resume;
 
 import java.util.Arrays;
 
@@ -8,10 +8,12 @@ import java.util.Arrays;
  * Array based storage for Resumes
  */
 public class ArrayStorage {
+    // Size of the storage
+    private static final int STORAGE_LIMIT = 10000;
     // The number of elements actually stored in array
     private int size = 0;
-    // Storage for com.urise.webapp.model.Resume objects
-    private Resume[] storage = new Resume[10000];
+    // Storage for Resume objects
+    private Resume[] storage = new Resume[STORAGE_LIMIT];
 
     /**
      * Returns index of the Resume with given UUID in the storage.
@@ -34,31 +36,30 @@ public class ArrayStorage {
      *
      */
     public void clear() {
-        Arrays.fill(storage, null);
+        Arrays.fill(storage, 0, size, null);
         size = 0;
     }
 
     /**
-     * Place new com.urise.webapp.model.Resume obj at the end
+     * Place new Resume obj at the end
      * of the previously stored objects succession.
      *
      */
     public void save(Resume r) {
-        /* Check if we're running out of storage space.
-         *  In this case print message to the System.out.
-         */
-        if (size == storage.length) {
+        // Check if element already presents.
+        if (getIndexOfResume(r.getUuid()) != -1) {
+            System.out.printf("ERROR. Can't save. Resume with UUID [%s] already exists.\n",
+                    r.getUuid());
+            return;
+        }
+        // Check if we're running out of storage space.
+        if (size == STORAGE_LIMIT) {
             System.out.printf("ERROR. Can't save. Storage's ran out of space.");
             return;
         }
-        // Check if element already presents.
-        if (getIndexOfResume(r.getUuid()) == -1) {
-            storage[size] = r;
-            size++;
-        } else {
-            System.out.printf("ERROR. Can't save. Resume with UUID [%s] already exists.\n",
-                    r.getUuid());
-        }
+
+        storage[size] = r;
+        size++;
     }
 
     /**
@@ -96,7 +97,7 @@ public class ArrayStorage {
     }
 
     /**
-     * Delete com.urise.webapp.model.Resume object by UUID
+     * Delete Resume object by UUID
      * Print error message if not found.
      */
     public void delete(String uuid) {
@@ -122,10 +123,7 @@ public class ArrayStorage {
      *
      */
     public Resume[] getAll() {
-        Resume[] result = new Resume[size];
-        System.arraycopy(storage,0, result, 0, size);
-
-        return result;
+        return Arrays.copyOfRange(storage, 0, size);
     }
 
     /**
