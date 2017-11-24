@@ -8,7 +8,7 @@ import java.util.Arrays;
  */
 public abstract class AbstractArrayStorage implements Storage{
     // Size of the storage
-    static final int STORAGE_LIMIT = 10000;
+    private static final int STORAGE_LIMIT = 10000;
     // The number of elements actually stored in array
     int size = 0;
     // Storage for Resume objects
@@ -16,9 +16,9 @@ public abstract class AbstractArrayStorage implements Storage{
 
     protected abstract int getIndexOfResume(String uuid);
 
-    public abstract void save(Resume r);
+    protected abstract void saveToIndex(Resume r, int index);
 
-    public abstract void delete(String uuid);
+    protected abstract void deleteByIndex(int index);
 
     /**
      * Clear out the elements storage by filling it with nulls
@@ -44,6 +44,29 @@ public abstract class AbstractArrayStorage implements Storage{
             storage[index] = r;
         }
     }
+
+    /**
+     * Place new Resume obj at the end
+     * of the previously stored objects succession.
+     */
+    @Override
+    public void save(Resume r) {
+        int index = getIndexOfResume(r.getUuid());
+        // Check if element already presents.
+        if (index >= 0) {
+            System.out.printf("ERROR. Can't save. Resume with UUID [%s] already exists.\n",
+                    r.getUuid());
+            return;
+        }
+        // Check if we're running out of storage space.
+        if (size == STORAGE_LIMIT) {
+            System.out.printf("ERROR. Can't save. Storage's ran out of space.");
+            return;
+        }
+        // Get real index of the first element greater than the argument.
+        index = -(index + 1);
+        saveToIndex(r, index);
+    }
     /**
      * Retrieve Resume object from AbstractArrayStorage by UUID.
      *
@@ -60,6 +83,22 @@ public abstract class AbstractArrayStorage implements Storage{
 
         return storage[index];
     }
+    /**
+     * Delete Resume object by UUID
+     * Print error message if not found.
+     */
+    @Override
+    public void delete(String uuid) {
+        int index = getIndexOfResume(uuid);
+
+        if (index < 0) {
+            System.out.printf("ERROR. Can't delete resume with UUID [%s]. " +
+                    "No such element.\n", uuid);
+        } else {
+            deleteByIndex(index);
+        }
+    }
+
     /**
      * Get all resumes from the storage.
      *
