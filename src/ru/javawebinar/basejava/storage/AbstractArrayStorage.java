@@ -1,6 +1,10 @@
 package ru.javawebinar.basejava.storage;
 
+import ru.javawebinar.basejava.exception.ExistStorageException;
+import ru.javawebinar.basejava.exception.NotExistStorageException;
+import ru.javawebinar.basejava.exception.StorageException;
 import ru.javawebinar.basejava.model.Resume;
+
 import java.util.Arrays;
 
 /**
@@ -31,15 +35,14 @@ public abstract class AbstractArrayStorage implements Storage{
     }
     /**
      * Saves new Resume obj in place of the old one with the same UUID.
-     * If can't find such UUID prints error message.
+     * @throws NotExistStorageException in not found
      *
      * */
     public void update(Resume r) {
         int index = getIndexOfResume(r.getUuid());
 
         if (index < 0) {
-            System.out.printf("ERROR. Can't update resume with UUID [%s]. " +
-                    "No such element.\n", r.getUuid());
+            throw new NotExistStorageException(r.getUuid());
         } else {
             storage[index] = r;
         }
@@ -48,20 +51,22 @@ public abstract class AbstractArrayStorage implements Storage{
     /**
      * Place new Resume obj at the end
      * of the previously stored objects succession.
+     *
+     * @throws ExistStorageException if Resume with the same UUID is already
+     * in storage.
+     *
+     * @throws StorageException if has no enough space in the storage
      */
     @Override
     public void save(Resume r) {
         int index = getIndexOfResume(r.getUuid());
         // Check if element already presents.
         if (index >= 0) {
-            System.out.printf("ERROR. Can't save. Resume with UUID [%s] already exists.\n",
-                    r.getUuid());
-            return;
+            throw new ExistStorageException(r.getUuid());
         }
         // Check if we're running out of storage space.
         if (size == STORAGE_LIMIT) {
-            System.out.printf("ERROR. Can't save. Storage's ran out of space.");
-            return;
+            throw new StorageException("Storage overflow.", r.getUuid());
         }
 
         saveToIndex(r, index);
@@ -71,29 +76,31 @@ public abstract class AbstractArrayStorage implements Storage{
      * Retrieve Resume object from AbstractArrayStorage by UUID.
      *
      * @return Resume with given UUID or null if not found.
+     *
+     * @throws NotExistStorageException is Resume with given UUID
+     * not found in storage
      */
     public Resume get(String uuid) {
         int index = getIndexOfResume(uuid);
 
         if (index < 0) {
-            System.out.printf("ERROR. Can't find resume with UUID [%s]. " +
-                    "No such element.\n", uuid);
-            return null;
+            throw new NotExistStorageException(uuid);
         }
 
         return storage[index];
     }
     /**
      * Delete Resume object by UUID
-     * Print error message if not found.
+     *
+     * @throws NotExistStorageException if can't find Resume
+     * with given UUID.
      */
     @Override
     public void delete(String uuid) {
         int index = getIndexOfResume(uuid);
 
         if (index < 0) {
-            System.out.printf("ERROR. Can't delete resume with UUID [%s]. " +
-                    "No such element.\n", uuid);
+            throw new NotExistStorageException(uuid);
         } else {
             deleteByIndex(index);
             storage[size-1] = null;

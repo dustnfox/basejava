@@ -33,14 +33,12 @@ class MainTestStorage {
                         System.out.println(arrayStorage.size());
                         break;
                     case "save":
-                        r = new Resume();
-                        r.setUuid(uuid);
+                        r = new Resume(uuid);
                         arrayStorage.save(r);
                         printAll(arrayStorage);
                         break;
                     case "update":
-                        r = new Resume();
-                        r.setUuid(uuid);
+                        r = new Resume(uuid);
                         arrayStorage.update(r);
                         printAll(arrayStorage);
                         break;
