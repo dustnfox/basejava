@@ -63,9 +63,9 @@ public abstract class AbstractArrayStorage implements Storage{
             System.out.printf("ERROR. Can't save. Storage's ran out of space.");
             return;
         }
-        // Get real index of the first element greater than the argument.
-        index = -(index + 1);
+
         saveToIndex(r, index);
+        size++;
     }
     /**
      * Retrieve Resume object from AbstractArrayStorage by UUID.
@@ -96,6 +96,8 @@ public abstract class AbstractArrayStorage implements Storage{
                     "No such element.\n", uuid);
         } else {
             deleteByIndex(index);
+            storage[size-1] = null;
+            size--;
         }
     }
 

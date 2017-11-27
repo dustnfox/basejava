@@ -24,9 +24,10 @@ public class SortedArrayStorage extends AbstractArrayStorage {
      */
     @Override
     protected void saveToIndex(Resume r, int index) {
+        // Get real index of the first element greater than the argument.
+        index = -(index + 1);
         System.arraycopy(storage, index, storage, index+1, size-index);
         storage[index] = r;
-        size++;
     }
     /**
      * Shifts elements with indexes greater than given
@@ -35,7 +36,5 @@ public class SortedArrayStorage extends AbstractArrayStorage {
     @Override
     protected void deleteByIndex(int index) {
         System.arraycopy(storage, index + 1, storage, index, size - index);
-        storage[size] = null;
-        size--;
     }
 }

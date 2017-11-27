@@ -23,7 +23,6 @@ public class ArrayStorage extends AbstractArrayStorage {
     @Override
     protected void saveToIndex(Resume r, int index) {
         storage[size] = r;
-        size++;
     }
     /**
      * Substitutes the element at index with the last
@@ -32,7 +31,5 @@ public class ArrayStorage extends AbstractArrayStorage {
     @Override
     protected void deleteByIndex(int index) {
         storage[index] = storage[size-1];
-        storage[size-1] = null;
-        size--;
     }
 }
