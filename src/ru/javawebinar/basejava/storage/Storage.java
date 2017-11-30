@@ -3,7 +3,7 @@ package ru.javawebinar.basejava.storage;
 import ru.javawebinar.basejava.model.Resume;
 
 /**
- * Interface for ArrayStorage classes
+ * Common interface for all Storage classes
  *
  * */
 

@@ -22,7 +22,7 @@ public class SortedArrayStorage extends AbstractArrayStorage {
      * to the right by one element. Saves given Resume at index.
      */
     @Override
-    protected void saveToIndex(Resume r, int index) {
+    protected void saveToIndex(int index, Resume r) {
         // Get real index of the first element greater than the argument.
         index = -(index + 1);
         System.arraycopy(storage, index, storage, index+1, size-index);

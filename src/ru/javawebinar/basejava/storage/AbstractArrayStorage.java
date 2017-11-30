@@ -1,7 +1,6 @@
 package ru.javawebinar.basejava.storage;
 
-import ru.javawebinar.basejava.exception.ExistStorageException;
-import ru.javawebinar.basejava.exception.NotExistStorageException;
+
 import ru.javawebinar.basejava.exception.StorageException;
 import ru.javawebinar.basejava.model.Resume;
 
@@ -20,7 +19,7 @@ public abstract class AbstractArrayStorage extends AbstractStorage implements St
 
     protected abstract int getIndexOfResume(String uuid);
 
-    protected abstract void saveToIndex(Resume r, int index);
+    protected abstract void saveToIndex(int index, Resume r);
 
     protected abstract void deleteByIndex(int index);
 
@@ -45,7 +44,7 @@ public abstract class AbstractArrayStorage extends AbstractStorage implements St
             throw new StorageException("Storage overflow.", r.getUuid());
         }
 
-        saveToIndex(r, intendedIndex);
+        saveToIndex(intendedIndex, r);
         size++;
     }
 

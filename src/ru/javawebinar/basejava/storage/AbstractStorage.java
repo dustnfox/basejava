@@ -6,7 +6,7 @@ import ru.javawebinar.basejava.exception.StorageException;
 import ru.javawebinar.basejava.model.Resume;
 
 /**
- * Created by dustnfox on 29.11.2017.
+ * Abstract class for common Storage interface implementation
  */
 public abstract class AbstractStorage implements Storage {
 
@@ -56,12 +56,12 @@ public abstract class AbstractStorage implements Storage {
         saveResume(index, r);
     }
     /**
-     * Retrieve Resume object from AbstractArrayStorage by UUID.
+     * Retrieve Resume object from Storage by UUID.
      *
      * @return Resume with given UUID or null if not found.
      *
-     * @throws NotExistStorageException is Resume with given UUID
-     * not found in storage
+     * @throws NotExistStorageException if Resume with given UUID
+     * isn't found in storage
      */
     @Override
     public Resume get(String uuid) {
@@ -76,8 +76,8 @@ public abstract class AbstractStorage implements Storage {
     /**
      * Delete Resume object by UUID
      *
-     * @throws NotExistStorageException if can't find Resume
-     * with given UUID.
+     * @throws NotExistStorageException if Resume with given UUID
+     * isn't found in storage
      */
     @Override
     public void delete(String uuid) {

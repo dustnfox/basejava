@@ -21,27 +21,28 @@ public class MapStorage extends AbstractStorage {
 
     @Override
     int getIndexOfResume(String uuid) {
-        return 0;
+
+        return storage.containsKey(uuid) ? 1 : -1;
     }
 
     @Override
     void updateResume(int intendedIndex, Resume r) {
-
+        storage.replace(r.getUuid(), r);
     }
 
     @Override
     void saveResume(int intendedIndex, Resume r) {
-
+        storage.put(r.getUuid(), r);
     }
 
     @Override
     Resume getResume(int intendedIndex, String uuid) {
-        return null;
+        return storage.get(uuid);
     }
 
     @Override
     void deleteResume(int intendedIndex, String uuid) {
-
+        storage.remove(uuid);
     }
 
     @Override
