@@ -10,7 +10,7 @@ import java.util.Arrays;
 /**
  * Array based storage for Resumes
  */
-public abstract class AbstractArrayStorage implements Storage{
+public abstract class AbstractArrayStorage extends AbstractStorage implements Storage{
     // Size of the storage
     private static final int STORAGE_LIMIT = 10000;
     // The number of elements actually stored in array
@@ -33,81 +33,33 @@ public abstract class AbstractArrayStorage implements Storage{
         Arrays.fill(storage, 0, size, null);
         size = 0;
     }
-    /**
-     * Saves new Resume obj in place of the old one with the same UUID.
-     * @throws NotExistStorageException in not found
-     *
-     * */
-    public void update(Resume r) {
-        int index = getIndexOfResume(r.getUuid());
 
-        if (index < 0) {
-            throw new NotExistStorageException(r.getUuid());
-        } else {
-            storage[index] = r;
-        }
+    void updateResume(int intendedIndex, Resume r) {
+        storage[intendedIndex] = r;
     }
 
-    /**
-     * Place new Resume obj at the end
-     * of the previously stored objects succession.
-     *
-     * @throws ExistStorageException if Resume with the same UUID is already
-     * in storage.
-     *
-     * @throws StorageException if has no enough space in the storage
-     */
     @Override
-    public void save(Resume r) {
-        int index = getIndexOfResume(r.getUuid());
-        // Check if element already presents.
-        if (index >= 0) {
-            throw new ExistStorageException(r.getUuid());
-        }
+    void saveResume(int intendedIndex, Resume r) {
         // Check if we're running out of storage space.
         if (size == STORAGE_LIMIT) {
             throw new StorageException("Storage overflow.", r.getUuid());
         }
 
-        saveToIndex(r, index);
+        saveToIndex(r, intendedIndex);
         size++;
     }
-    /**
-     * Retrieve Resume object from AbstractArrayStorage by UUID.
-     *
-     * @return Resume with given UUID or null if not found.
-     *
-     * @throws NotExistStorageException is Resume with given UUID
-     * not found in storage
-     */
-    public Resume get(String uuid) {
-        int index = getIndexOfResume(uuid);
 
-        if (index < 0) {
-            throw new NotExistStorageException(uuid);
-        }
-
-        return storage[index];
-    }
-    /**
-     * Delete Resume object by UUID
-     *
-     * @throws NotExistStorageException if can't find Resume
-     * with given UUID.
-     */
     @Override
-    public void delete(String uuid) {
-        int index = getIndexOfResume(uuid);
-
-        if (index < 0) {
-            throw new NotExistStorageException(uuid);
-        } else {
-            deleteByIndex(index);
-            storage[size-1] = null;
-            size--;
-        }
+    Resume getResume(int intendedIndex, String uuid) {
+        return storage[intendedIndex];
     }
 
+    @Override
+    void deleteResume(int intendedIndex, String uuid) {
+        deleteByIndex(intendedIndex);
+        storage[size-1] = null;
+        size--;
+    }
     /**
      * Get all resumes from the storage.
      *
