@@ -10,31 +10,36 @@ import ru.javawebinar.basejava.model.Resume;
  */
 public abstract class AbstractStorage implements Storage {
 
-    abstract int getIndexOfResume(String uuid);
+    abstract Object getKeyByUuid(String uuid);
 
-    abstract void updateResume(int intendedIndex, Resume r);
+    abstract boolean isKeyValid(Object key);
 
-    abstract void saveResume(int intendedIndex, Resume r);
+    abstract void updateResume(Object key, Resume r);
 
-    abstract Resume getResume(int intendedIndex, String uuid);
+    abstract void saveResume(Object key, Resume r);
 
-    abstract void deleteResume(int intendedIndex, String uuid);
+    abstract Resume getResumeByUuid(String uuid);
+
+    abstract Resume deleteResumeByUuid(String uuid);
+
 
     @Override
     public abstract void clear();
     /**
-     * Saves new Resume obj in place of the old one with the same UUID.
+     * Saves new Resume obj in place of
+     * the old one with the same UUID.
+     *
      * @throws NotExistStorageException in not found
      *
      * */
     @Override
     public void update(Resume r) {
-        int index = getIndexOfResume(r.getUuid());
+        Object key = getKeyByUuid(r.getUuid());
 
-        if (index < 0) {
+        if (!isKeyValid(key)) {
             throw new NotExistStorageException(r.getUuid());
         } else {
-            updateResume(index, r);
+            updateResume(key, r);
         }
     }
     /**
@@ -47,13 +52,13 @@ public abstract class AbstractStorage implements Storage {
      */
     @Override
     public void save(Resume r) {
-        int index = getIndexOfResume(r.getUuid());
-        // Check if element already presents.
-        if (index >= 0) {
+        Object key = getKeyByUuid(r.getUuid());
+
+        if (isKeyValid(key)) {
             throw new ExistStorageException(r.getUuid());
         }
 
-        saveResume(index, r);
+        saveResume(key, r);
     }
     /**
      * Retrieve Resume object from Storage by UUID.
@@ -65,13 +70,13 @@ public abstract class AbstractStorage implements Storage {
      */
     @Override
     public Resume get(String uuid) {
-        int index = getIndexOfResume(uuid);
+        Resume resume = getResumeByUuid(uuid);
 
-        if (index < 0) {
+        if (resume == null) {
             throw new NotExistStorageException(uuid);
         }
 
-        return getResume(index, uuid);
+        return resume;
     }
     /**
      * Delete Resume object by UUID
@@ -81,13 +86,8 @@ public abstract class AbstractStorage implements Storage {
      */
     @Override
     public void delete(String uuid) {
-        int index = getIndexOfResume(uuid);
-
-        if (index < 0) {
+        if (deleteResumeByUuid(uuid) == null)
             throw new NotExistStorageException(uuid);
-        } else {
-            deleteResume(index, uuid);
-        }
     }
 
     @Override

@@ -6,9 +6,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Created by dustnfox on 29.11.2017.
+ * Implementation of the Resume objects storage based on the List interface.
+ *
  */
-public class MapStorage extends AbstractStorage {
+public class MapStorage extends AbstractStorage{
     final private Map<String, Resume> storage;
 
     public MapStorage() {
@@ -19,30 +20,46 @@ public class MapStorage extends AbstractStorage {
         this.storage = new HashMap<>(initialSize);
     }
 
+    /**
+     * Here just returns UUID argument. We'll check it for
+     * existence later in isKeyValid method
+     *
+     * @param uuid UUID to search.
+     * @return UUID argumen
+     */
     @Override
-    int getIndexOfResume(String uuid) {
+    Object getKeyByUuid(String uuid) {
+        return uuid;
+    }
 
-        return storage.containsKey(uuid) ? 1 : -1;
+    /**
+     * Checks if map has Resume stored with such key.
+     * @param key UUID of the Resume to search.
+     * @return true if map has such key and false if not.
+     */
+    @Override
+    boolean isKeyValid(Object key) {
+        return storage.containsKey((String)key);
     }
 
     @Override
-    void updateResume(int intendedIndex, Resume r) {
-        storage.replace(r.getUuid(), r);
+    void updateResume(Object key, Resume r) {
+        storage.replace((String)key, r);
     }
 
     @Override
-    void saveResume(int intendedIndex, Resume r) {
-        storage.put(r.getUuid(), r);
+    void saveResume(Object key, Resume r) {
+        storage.put((String)key, r);
     }
 
     @Override
-    Resume getResume(int intendedIndex, String uuid) {
+    Resume getResumeByUuid(String uuid) {
         return storage.get(uuid);
     }
 
     @Override
-    void deleteResume(int intendedIndex, String uuid) {
-        storage.remove(uuid);
+    Resume deleteResumeByUuid(String uuid) {
+        return storage.remove(uuid);
     }
 
     @Override
