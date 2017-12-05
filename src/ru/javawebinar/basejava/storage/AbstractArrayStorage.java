@@ -5,8 +5,6 @@ import ru.javawebinar.basejava.exception.StorageException;
 import ru.javawebinar.basejava.model.Resume;
 
 import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
 
 /**
  *  Abstract class for common Array based storage for Resumes
@@ -92,6 +90,7 @@ public abstract class AbstractArrayStorage extends AbstractStorage{
      * and trim the size to zero.
      *
      */
+    @Override
     public void clear() {
         Arrays.fill(storage, 0, size, null);
         size = 0;
@@ -101,6 +100,7 @@ public abstract class AbstractArrayStorage extends AbstractStorage{
      * @return The number of the Resumes in array.
      *
      */
+    @Override
     public int size() {
         return size;
     }

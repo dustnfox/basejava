@@ -15,7 +15,7 @@ import static java.util.Comparator.comparing;
  * Abstract class for common Storage interface implementation
  */
 public abstract class AbstractStorage implements Storage {
-    private static final Comparator<Resume> RESUME_COMPARATOR_BY_FULLNAME = comparing(Resume::getFullName);
+    private static final Comparator<Resume> RESUME_FULLNAME_COMPARATOR = comparing(Resume::getFullName);
 
     abstract Object getKeyByUuid(String uuid);
 
@@ -97,7 +97,7 @@ public abstract class AbstractStorage implements Storage {
     @Override
     public List<Resume> getAll() {
         Resume[] array = getArray();
-        Arrays.sort(array, RESUME_COMPARATOR_BY_FULLNAME);
+        Arrays.sort(array, RESUME_FULLNAME_COMPARATOR);
         return Arrays.asList(array);
     }
 }
