@@ -5,6 +5,8 @@ import ru.javawebinar.basejava.storage.Storage;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.List;
+
 /**
  * Test for ru.javawebinar.basejava.storage.Sorted interface
  */
@@ -67,9 +69,9 @@ class MainTestStorage {
     }
 
     private static void printAll(Storage arrayStorage) {
-        Resume[] all = arrayStorage.getAll();
+        List<Resume> all = arrayStorage.getAll();
         System.out.println("----------------------------");
-        if (all.length == 0) {
+        if (all.size() == 0) {
             System.out.println("Empty");
         } else {
             for (Resume r : all) {

@@ -8,6 +8,11 @@ import ru.javawebinar.basejava.exception.ExistStorageException;
 import ru.javawebinar.basejava.exception.NotExistStorageException;
 import ru.javawebinar.basejava.model.Resume;
 
+import java.util.Comparator;
+import java.util.Iterator;
+import java.util.List;
+
+import static java.util.Comparator.comparing;
 import static org.junit.Assert.*;
 
 public abstract class AbstractStorageTest {
@@ -17,13 +22,37 @@ public abstract class AbstractStorageTest {
     static final String UUID_3 = "uuid3";
     static final String UUID_4 = "uuid4";
     static final String UUID_NON_EXISTS = "dummy";
-    static final Resume RESUME_1 = new Resume(UUID_1);
-    static final Resume RESUME_2 = new Resume(UUID_2);
-    static final Resume RESUME_3 = new Resume(UUID_3);
-    static final Resume RESUME_4 = new Resume(UUID_4);
+    static final String NAME_1 = "name1";
+    static final String NAME_2 = "name2";
+    static final String NAME_3 = "name3";
+    static final String NAME_4 = "name4";
+    static final String NAME_NON_EXISTS = "dummy_name";
+    static final Resume RESUME_1 = new Resume(UUID_1, NAME_1);
+    static final Resume RESUME_2 = new Resume(UUID_2, NAME_2);
+    static final Resume RESUME_3 = new Resume(UUID_3, NAME_3);
+    static final Resume RESUME_4 = new Resume(UUID_4, NAME_4);
+    private static final Comparator<Resume> RESUME_COMPARATOR_BY_FULLNAME = comparing(Resume::getFullName);
 
     AbstractStorageTest(Storage storage) {
         this.storage = storage;
+    }
+
+    private boolean isListsSorted(List<Resume> list, Comparator<Resume> comparator) {
+        if (list == null) {
+            return false;
+        } else {
+            Iterator<Resume> listIterator = list.iterator();
+            Resume prevResume = null;
+            Resume currentResume;
+            while (listIterator.hasNext()) {
+                currentResume = listIterator.next();
+                if (prevResume != null && comparator.compare(prevResume, currentResume) > 0)
+                    return false;
+                else
+                    prevResume = currentResume;
+            }
+            return true;
+        }
     }
 
     @Before
@@ -46,14 +75,14 @@ public abstract class AbstractStorageTest {
 
     @Test
     public void update() throws Exception {
-        Resume rTest = new Resume(UUID_1);
+        Resume rTest = new Resume(UUID_1, NAME_2);
         storage.update(rTest);
         assertTrue(rTest == storage.get(UUID_1));
     }
 
     @Test(expected = NotExistStorageException.class)
     public void updateNotExist() throws Exception {
-        storage.update(new Resume(UUID_NON_EXISTS));
+        storage.update(new Resume(UUID_NON_EXISTS, NAME_NON_EXISTS));
     }
 
     @Test
@@ -93,11 +122,16 @@ public abstract class AbstractStorageTest {
 
     @Test
     public void getAll() throws Exception {
-        Resume[] rTestArray = storage.getAll();
-        assertEquals(3, rTestArray.length);
+        storage.delete(UUID_1);
+        storage.save(RESUME_1);
+        List<Resume> rTestArray = storage.getAll();
+        assertEquals(3, rTestArray.size());
+        // Checking if we've got all three resumes
         for(Resume r : rTestArray) {
             storage.get(r.getUuid());
         }
+        // Checking the order
+        assertTrue(isListsSorted(rTestArray, RESUME_COMPARATOR_BY_FULLNAME));
     }
 
     @Test

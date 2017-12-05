@@ -2,21 +2,23 @@ package ru.javawebinar.basejava.storage;
 
 import ru.javawebinar.basejava.model.Resume;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
  * Implementation of the Resume objects storage based on the List interface.
  *
  */
-public class MapStorage extends AbstractStorage{
+public class MapUuidStorage extends AbstractStorage {
     final private Map<String, Resume> storage;
 
-    public MapStorage() {
+    public MapUuidStorage() {
         this.storage = new HashMap<>();
     }
 
-    public MapStorage(int initialSize) {
+    public MapUuidStorage(int initialSize) {
         this.storage = new HashMap<>(initialSize);
     }
 
@@ -68,8 +70,8 @@ public class MapStorage extends AbstractStorage{
     }
 
     @Override
-    public Resume[] getAll() {
-        return storage.values().toArray( new Resume[storage.size()] );
+    public Resume[] getArray() {
+        return storage.values().toArray(new Resume[storage.size()]);
     }
 
     @Override
