@@ -31,7 +31,7 @@ public class ArrayStorage extends AbstractArrayStorage {
      * If doesn't exist returns  -1.
      */
     @Override
-    protected Object getKeyByUuid(String uuid) {
+    protected Integer getKeyByUuid(String uuid) {
         for(int i=0; i<size; i++) {
             if(storage[i].getUuid().equals(uuid)) {
                 return i;

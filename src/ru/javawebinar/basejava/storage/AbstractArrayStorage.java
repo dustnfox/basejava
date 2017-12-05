@@ -21,82 +21,63 @@ public abstract class AbstractArrayStorage extends AbstractStorage{
 
     protected abstract void fillGapAtIndex(int index);
 
-    @Override
-    protected abstract Object getKeyByUuid(String uuid);
     // Check if the key is valid index for storage
     @Override
-    boolean isKeyValid(Object key) {
-        int index = (int)key;
-        return index >=0 && index < storage.length;
+    boolean isKeyValid(Object index) {
+        Integer ind = (Integer)index;
+        return ind >=0 && ind < storage.length;
     }
 
     /**
      * Replaces Resume at given index with new Resume object
      *
-     * @param key Index of the old Resume object.
+     * @param index Index of the old Resume object.
      *
      * @param r New Resume instance
      */
     @Override
-    void updateResume(Object key, Resume r) {
-        storage[(int)key] = r;
+    void updateResume(Object index, Resume r) {
+        storage[(int)index] = r;
     }
 
     /**
      * Saves given Resume object in array
      *
-     * @param key Intended index of array at which Resume may be saved
+     * @param index Intended index of array at which Resume may be saved
      *
      * @param r Resume instance to save
      *
      * @throws StorageException If array's ran out of space.
      */
     @Override
-    void saveResume(Object key, Resume r) {
+    void saveResume(Object index, Resume r) {
         // Check if we're running out of storage space.
         if (size == STORAGE_LIMIT) {
             throw new StorageException("Storage overflow.", r.getUuid());
         }
 
-        saveToIndex((int)key, r);
+        saveToIndex((Integer)index, r);
         size++;
     }
 
     /**
-     * Retrieve Resume with given UUID from the storage
-     *
-     * @param uuid UUID to search
-     *
-     * @return Resume instance with given UUID or null is Resume
-     * with such UUID wasn't found.
+     * Retrieve Resume with given index (key) from the storage
+     * @return Resume instance stored at given index.
      */
     @Override
-    Resume getResumeByUuid(String uuid) {
-        int index = (int) getKeyByUuid(uuid);
-        return (index >= 0) ? storage[index] : null;
+    Resume getResumeByKey(Object index) {
+        return storage[(Integer)index];
     }
 
     /**
-     * Deletes Resume with given UUID
-     *
-     * @param uuid UUID to search
-     *
-     * @return Deleted Resume instance or null if Resume with
-     * such UUID wasn't found.
+     * Deletes Resume with given index (key)
      */
     @Override
-    Resume deleteResumeByUuid(String uuid) {
-        Resume resume = null;
-
-        int index = (int)getKeyByUuid(uuid);
-        if(index >= 0) {
-            resume = storage[index];
-            fillGapAtIndex(index);
-            storage[size - 1] = null;
-            size--;
-        }
-
-        return resume;
+    void deleteResumeByKey(Object index) {
+        Integer ind = (Integer)index;
+        fillGapAtIndex(ind);
+        storage[size - 1] = null;
+        size--;
     }
 
     /**

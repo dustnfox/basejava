@@ -18,13 +18,23 @@ public abstract class AbstractStorage implements Storage {
 
     abstract void saveResume(Object key, Resume r);
 
-    abstract Resume getResumeByUuid(String uuid);
+    abstract Resume getResumeByKey(Object key);
 
-    abstract Resume deleteResumeByUuid(String uuid);
+    abstract void deleteResumeByKey(Object key);
 
+    private Object getKey(String uuid, boolean shouldExist) {
+        Object key = getKeyByUuid(uuid);
 
-    @Override
-    public abstract void clear();
+        if (isKeyValid(key) ^ shouldExist) {
+            if(shouldExist)
+                throw new NotExistStorageException(uuid);
+            else
+                throw new ExistStorageException(uuid);
+        } else {
+            return key;
+        }
+    }
+
     /**
      * Saves new Resume obj in place of
      * the old one with the same UUID.
@@ -34,13 +44,8 @@ public abstract class AbstractStorage implements Storage {
      * */
     @Override
     public void update(Resume r) {
-        Object key = getKeyByUuid(r.getUuid());
-
-        if (!isKeyValid(key)) {
-            throw new NotExistStorageException(r.getUuid());
-        } else {
-            updateResume(key, r);
-        }
+        Object key = getKey(r.getUuid(), true);
+        updateResume(key, r);
     }
     /**
      * Place new Resume obj in the storage
@@ -52,12 +57,7 @@ public abstract class AbstractStorage implements Storage {
      */
     @Override
     public void save(Resume r) {
-        Object key = getKeyByUuid(r.getUuid());
-
-        if (isKeyValid(key)) {
-            throw new ExistStorageException(r.getUuid());
-        }
-
+        Object key = getKey(r.getUuid(), false);
         saveResume(key, r);
     }
     /**
@@ -70,13 +70,8 @@ public abstract class AbstractStorage implements Storage {
      */
     @Override
     public Resume get(String uuid) {
-        Resume resume = getResumeByUuid(uuid);
-
-        if (resume == null) {
-            throw new NotExistStorageException(uuid);
-        }
-
-        return resume;
+        Object key = getKey(uuid, true);
+        return getResumeByKey(key);
     }
     /**
      * Delete Resume object by UUID
@@ -86,13 +81,7 @@ public abstract class AbstractStorage implements Storage {
      */
     @Override
     public void delete(String uuid) {
-        if (deleteResumeByUuid(uuid) == null)
-            throw new NotExistStorageException(uuid);
+        Object key = getKey(uuid, true);
+        deleteResumeByKey(key);
     }
-
-    @Override
-    public abstract Resume[] getAll();
-
-    @Override
-    public abstract int size();
 }

@@ -45,7 +45,7 @@ public class SortedArrayStorage extends AbstractArrayStorage {
      * or size if all elements in the storage are less than the specified key.
      */
     @Override
-    protected Object getKeyByUuid(String uuid) {
+    protected Integer getKeyByUuid(String uuid) {
         Resume key = new Resume(uuid);
         return Arrays.binarySearch(storage, 0, size, key, comparing(Resume::getUuid));
     }

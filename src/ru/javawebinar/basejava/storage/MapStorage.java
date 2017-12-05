@@ -28,7 +28,7 @@ public class MapStorage extends AbstractStorage{
      * @return UUID argumen
      */
     @Override
-    Object getKeyByUuid(String uuid) {
+    String getKeyByUuid(String uuid) {
         return uuid;
     }
 
@@ -53,13 +53,13 @@ public class MapStorage extends AbstractStorage{
     }
 
     @Override
-    Resume getResumeByUuid(String uuid) {
-        return storage.get(uuid);
+    Resume getResumeByKey(Object key) {
+        return storage.get((String)key);
     }
 
     @Override
-    Resume deleteResumeByUuid(String uuid) {
-        return storage.remove(uuid);
+    void deleteResumeByKey(Object key) {
+        storage.remove((String) key);
     }
 
     @Override
