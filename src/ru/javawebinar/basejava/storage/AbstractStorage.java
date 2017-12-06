@@ -2,102 +2,55 @@ package ru.javawebinar.basejava.storage;
 
 import ru.javawebinar.basejava.exception.ExistStorageException;
 import ru.javawebinar.basejava.exception.NotExistStorageException;
-import ru.javawebinar.basejava.exception.StorageException;
 import ru.javawebinar.basejava.model.Resume;
 
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
-
-import static java.util.Comparator.comparing;
-
-/**
- * Abstract class for common Storage interface implementation
- */
 public abstract class AbstractStorage implements Storage {
-    private static final Comparator<Resume> RESUME_COMPARATOR_BY_FULLNAME = comparing(Resume::getFullName);
 
-    abstract Object getKeyByUuid(String uuid);
+    protected abstract Object getSearchKey(String uuid);
 
-    abstract boolean isKeyValid(Object key);
+    protected abstract void doUpdate(Resume r, Object searchKey);
 
-    abstract void updateResume(Object key, Resume r);
+    protected abstract boolean isExist(Object searchKey);
 
-    abstract void saveResume(Object key, Resume r);
+    protected abstract void doSave(Resume r, Object searchKey);
 
-    abstract Resume getResumeByKey(Object key);
+    protected abstract Resume doGet(Object searchKey);
 
-    abstract void deleteResumeByKey(Object key);
+    protected abstract void doDelete(Object searchKey);
 
-    protected abstract Resume[] getArray();
-
-    private Object getKey(String uuid, boolean shouldExist) {
-        Object key = getKeyByUuid(uuid);
-
-        if (isKeyValid(key) ^ shouldExist) {
-            if(shouldExist)
-                throw new NotExistStorageException(uuid);
-            else
-                throw new ExistStorageException(uuid);
-        } else {
-            return key;
-        }
-    }
-
-    /**
-     * Saves new Resume obj in place of
-     * the old one with the same UUID.
-     *
-     * @throws NotExistStorageException in not found
-     *
-     * */
-    @Override
     public void update(Resume r) {
-        Object key = getKey(r.getUuid(), true);
-        updateResume(key, r);
-    }
-    /**
-     * Place new Resume obj in the storage
-     *
-     * @throws ExistStorageException if Resume with the same UUID is already
-     * in storage.
-     *
-     * @throws StorageException if has no enough space in the storage
-     */
-    @Override
-    public void save(Resume r) {
-        Object key = getKey(r.getUuid(), false);
-        saveResume(key, r);
-    }
-    /**
-     * Retrieve Resume object from Storage by UUID.
-     *
-     * @return Resume with given UUID or null if not found.
-     *
-     * @throws NotExistStorageException if Resume with given UUID
-     * isn't found in storage
-     */
-    @Override
-    public Resume get(String uuid) {
-        Object key = getKey(uuid, true);
-        return getResumeByKey(key);
-    }
-    /**
-     * Delete Resume object by UUID
-     *
-     * @throws NotExistStorageException if Resume with given UUID
-     * isn't found in storage
-     */
-    @Override
-    public void delete(String uuid) {
-        Object key = getKey(uuid, true);
-        deleteResumeByKey(key);
+        Object searchKey = getExistedSearchKey(r.getUuid());
+        doUpdate(r, searchKey);
     }
 
-    @Override
-    public List<Resume> getAll() {
-        Resume[] array = getArray();
-        Arrays.sort(array, RESUME_COMPARATOR_BY_FULLNAME);
-        return Arrays.asList(array);
+    public void save(Resume r) {
+        Object searchKey = getNotExistedSearchKey(r.getUuid());
+        doSave(r, searchKey);
+    }
+
+    public void delete(String uuid) {
+        Object searchKey = getExistedSearchKey(uuid);
+        doDelete(searchKey);
+    }
+
+    public Resume get(String uuid) {
+        Object searchKey = getExistedSearchKey(uuid);
+        return doGet(searchKey);
+    }
+
+    private Object getExistedSearchKey(String uuid) {
+        Object searchKey = getSearchKey(uuid);
+        if (!isExist(searchKey)) {
+            throw new NotExistStorageException(uuid);
+        }
+        return searchKey;
+    }
+
+    private Object getNotExistedSearchKey(String uuid) {
+        Object searchKey = getSearchKey(uuid);
+        if (isExist(searchKey)) {
+            throw new ExistStorageException(uuid);
+        }
+        return searchKey;
     }
 }

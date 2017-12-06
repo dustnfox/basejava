@@ -5,50 +5,37 @@ import ru.javawebinar.basejava.model.Resume;
 import java.util.Arrays;
 import java.util.Comparator;
 
-import static java.util.Comparator.comparing;
-
 public class SortedArrayStorage extends AbstractArrayStorage {
-    // Resume Comparator for binary search
-    private static final Comparator<Resume> RESUME_COMPARATOR = comparing(Resume::getUuid);
-    /**
-     * Shifts elements with indexes from given index
-     * to the right by one element. Saves given Resume at index.
-     *
-     * @param index Index of the cell in the array intended to store given Resume.
-     *
-     * @param r Resume instance to store.
-     */
-    @Override
-    protected void saveToIndex(int index, Resume r) {
-        // Get real index of the first element greater than the argument.
-        index = -(index + 1);
-        System.arraycopy(storage, index, storage, index+1, size-index);
-        storage[index] = r;
+/*
+    private static class ResumeComparator implements Comparator<Resume> {
+        @Override
+        public int compare(Resume o1, Resume o2) {
+            return o1.getUuid().compareTo(o2.getUuid());
+        }
     }
-    /**
-     * Shifts elements with indexes greater than given
-     * to the left by one element.
-     *
-     * @param index Index of the gap in the array we want to cover.
-     */
+*/
+
+    private static final Comparator<Resume> RESUME_COMPARATOR = (o1, o2) -> o1.getUuid().compareTo(o2.getUuid());
+
     @Override
-    protected void fillGapAtIndex(int index) {
-        System.arraycopy(storage, index + 1, storage, index, size - index);
+    protected void fillDeletedElement(int index) {
+        int numMoved = size - index - 1;
+        if (numMoved > 0) {
+            System.arraycopy(storage, index + 1, storage, index, numMoved);
+        }
     }
 
-    /**
-     * Retrieve index of the Resume with given UUID. Binary search algorithm
-     * is used.
-     *
-     * @return Index of the Resume with given UUID in the storage.
-     * If doesn't exist returns (-(insertion point) - 1) The insertion point
-     * is defined as the point at which the key would be inserted into the array:
-     * the index of the first element in the range greater than the key,
-     * or size if all elements in the storage are less than the specified key.
-     */
     @Override
-    protected Integer getKeyByUuid(String uuid) {
-        Resume key = new Resume(uuid, "");
-        return Arrays.binarySearch(storage, 0, size, key, RESUME_COMPARATOR);
+    protected void insertElement(Resume r, int index) {
+//      http://codereview.stackexchange.com/questions/36221/binary-search-for-inserting-in-array#answer-36239
+        int insertIdx = -index - 1;
+        System.arraycopy(storage, insertIdx, storage, insertIdx + 1, size - insertIdx);
+        storage[insertIdx] = r;
+    }
+
+    @Override
+    protected Integer getSearchKey(String uuid) {
+        Resume searchKey = new Resume(uuid);
+        return Arrays.binarySearch(storage, 0, size, searchKey, RESUME_COMPARATOR);
     }
 }

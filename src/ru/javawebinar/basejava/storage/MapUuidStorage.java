@@ -2,80 +2,55 @@ package ru.javawebinar.basejava.storage;
 
 import ru.javawebinar.basejava.model.Resume;
 
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-/**
- * Implementation of the Resume objects storage based on the List interface.
- *
- */
+// TODO implement
+// TODO create new MapStorage with search key not uuid
 public class MapUuidStorage extends AbstractStorage {
-    final private Map<String, Resume> storage;
+    private Map<String, Resume> map = new HashMap<>();
 
-    public MapUuidStorage() {
-        this.storage = new HashMap<>();
-    }
-
-    public MapUuidStorage(int initialSize) {
-        this.storage = new HashMap<>(initialSize);
-    }
-
-    /**
-     * Here just returns UUID argument. We'll check it for
-     * existence later in isKeyValid method
-     *
-     * @param uuid UUID to search.
-     * @return UUID argumen
-     */
     @Override
-    String getKeyByUuid(String uuid) {
+    protected String getSearchKey(String uuid) {
         return uuid;
     }
 
-    /**
-     * Checks if map has Resume stored with such key.
-     * @param key UUID of the Resume to search.
-     * @return true if map has such key and false if not.
-     */
     @Override
-    boolean isKeyValid(Object key) {
-        return storage.containsKey((String)key);
+    protected void doUpdate(Resume r, Object searchKey) {
     }
 
     @Override
-    void updateResume(Object key, Resume r) {
-        storage.replace((String)key, r);
+    protected boolean isExist(Object searchKey) {
+        return false;
     }
 
     @Override
-    void saveResume(Object key, Resume r) {
-        storage.put((String)key, r);
+    protected void doSave(Resume r, Object searchKey) {
+
     }
 
     @Override
-    Resume getResumeByKey(Object key) {
-        return storage.get((String)key);
+    protected Resume doGet(Object searchKey) {
+        return null;
     }
 
     @Override
-    void deleteResumeByKey(Object key) {
-        storage.remove((String) key);
+    protected void doDelete(Object searchKey) {
+
     }
 
     @Override
     public void clear() {
-        storage.clear();
+
     }
 
     @Override
-    public Resume[] getArray() {
-        return storage.values().toArray(new Resume[storage.size()]);
+    public Resume[] getAll() {
+        return new Resume[0];
     }
 
     @Override
     public int size() {
-        return storage.size();
+        return 0;
     }
 }

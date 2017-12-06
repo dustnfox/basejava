@@ -3,116 +3,58 @@ package ru.javawebinar.basejava.storage;
 import ru.javawebinar.basejava.model.Resume;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
-/**
- * Implementation of the Resume objects storage based on the List interface.
- *
- */
 public class ListStorage extends AbstractStorage {
-    final private List<Resume> storage;
+    private List<Resume> list = new ArrayList<>();
 
-    public ListStorage() {
-        this.storage = new ArrayList<>();
-    }
-
-    public ListStorage(int initialSize) {
-        this.storage = new ArrayList<>(initialSize);
-    }
-
-    /**
-     * Retrieves Resume with given UUID from the storage.
-     *
-     * @param uuid UUID to search.
-     * @return Position of the Resume of -1 if Resume with such UUID
-     * was not found
-     */
     @Override
-    Integer getKeyByUuid(String uuid) {
-        for(int i = 0; i < storage.size(); i++)
-            if( uuid.equals( storage.get(i).getUuid() ) )
+    protected Integer getSearchKey(String uuid) {
+        for (int i = 0; i < list.size(); i++) {
+            if (list.get(i).getUuid().equals(uuid)) {
                 return i;
-
-        return -1;
+            }
+        }
+        return null;
     }
 
-    // Check if the key is valid index for storage
     @Override
-    boolean isKeyValid(Object index) {
-        int ind = (int)index;
-        return ind >= 0 && ind < storage.size();
+    protected boolean isExist(Object searchKey) {
+        return searchKey != null;
     }
 
-    /**
-     * Replaces Resume at given index with new Resume object
-     *
-     * @param index Index of the old Resume object.
-     *
-     * @param r New Resume instance
-     */
     @Override
-    void updateResume(Object index, Resume r) {
-        storage.set((Integer)index, r);
+    protected void doUpdate(Resume r, Object searchKey) {
+        list.set((Integer) searchKey, r);
     }
 
-    /**
-     * Saves given Resume object in array
-     *
-     * @param index Index given for capability reasons and will be ignored.
-     *              Resume'll be saved at the end of the array.
-     *
-     * @param r Resume instance to save
-     *
-     */
     @Override
-    void saveResume(Object index, Resume r) {
-        storage.add(r);
+    protected void doSave(Resume r, Object searchKey) {
+        list.add(r);
     }
 
-    /**
-     * Retrieve Resume with given UUID from the storage
-     * @return Resume instance at the given index.
-     */
     @Override
-    Resume getResumeByKey(Object index) {
-        return storage.get((Integer)index);
-    }
-    /**
-     * Deletes Resume with given UUID
-     *
-     * @param index Index of Resume to remove.
-     */
-    @Override
-    void deleteResumeByKey(Object index) {
-        storage.remove((int)index);
+    protected Resume doGet(Object searchKey) {
+        return list.get((Integer) searchKey);
     }
 
-    /**
-     * Clear out the elements storage
-     */
+    @Override
+    protected void doDelete(Object searchKey) {
+        list.remove(((Integer) searchKey).intValue());
+    }
+
     @Override
     public void clear() {
-        storage.clear();
+        list.clear();
     }
 
-    /**
-     * Get all resumes from the storage.
-     *
-     * @return array, contains only Resumes in storage (without null)
-     *
-     */
     @Override
-    public Resume[] getArray() {
-        return storage.toArray(new Resume[storage.size()]);
+    public Resume[] getAll() {
+        return list.toArray(new Resume[list.size()]);
     }
 
-    /**
-     * @return The number of the Resumes in array.
-     *
-     */
     @Override
     public int size() {
-        return storage.size();
+        return list.size();
     }
 }
