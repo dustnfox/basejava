@@ -2,6 +2,8 @@ package ru.javawebinar.basejava.storage;
 
 import ru.javawebinar.basejava.model.Resume;
 
+import java.util.List;
+
 // TODO refactoring
 public interface Storage {
 
@@ -16,12 +18,9 @@ public interface Storage {
     void delete(String uuid);
 
     /**
-     * @return array, contains only Resumes in storage (without null)
+     * @return list sorted by Resume fullName contains only Resumes in storage (without null)
      */
-    Resume[] getAll();
-
-//  return list, sorted by name
-//  List<Resume> getAllSorted();
+    List<Resume> getAllSorted();
 
     int size();
 }

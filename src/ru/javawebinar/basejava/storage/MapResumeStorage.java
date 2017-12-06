@@ -2,25 +2,25 @@ package ru.javawebinar.basejava.storage;
 
 import ru.javawebinar.basejava.model.Resume;
 
-public class MapUuidStorage extends AbstractMapStorage {
+public class MapResumeStorage extends AbstractMapStorage {
 
     @Override
-    protected String getSearchKey(String uuid) {
-        return map.containsKey(uuid) ? uuid : null;
+    protected Resume getSearchKey(String uuid) {
+        return map.get(uuid);
     }
 
     @Override
     protected void doUpdate(Resume r, Object searchKey) {
-        map.replace((String) searchKey, r);
+        map.replace(((Resume) searchKey).getUuid(), r);
     }
 
     @Override
     protected Resume doGet(Object searchKey) {
-        return map.get((String) searchKey);
+        return (Resume) searchKey;
     }
 
     @Override
     protected void doDelete(Object searchKey) {
-        map.remove((String) searchKey);
+        map.remove(((Resume) searchKey).getUuid());
     }
 }
