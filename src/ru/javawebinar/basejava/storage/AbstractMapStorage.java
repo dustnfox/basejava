@@ -24,7 +24,7 @@ public abstract class AbstractMapStorage extends AbstractStorage {
         map.clear();
     }
 
-    @Override
+
     public Resume[] getAll() {
         return map.values().toArray(new Resume[map.size()]);
     }

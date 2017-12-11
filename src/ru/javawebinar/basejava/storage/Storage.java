@@ -4,7 +4,6 @@ import ru.javawebinar.basejava.model.Resume;
 
 import java.util.List;
 
-// TODO refactoring
 public interface Storage {
 
     void clear();
@@ -18,10 +17,9 @@ public interface Storage {
     void delete(String uuid);
 
     /**
-     * @return list sorted by Resume fullName contains only Resumes in storage (without null)
+     * @return array, contains only Resumes in storage (without null)
      */
     List<Resume> getAllSorted();
 
     int size();
 }
-
