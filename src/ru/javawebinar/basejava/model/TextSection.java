@@ -1,11 +1,8 @@
 package ru.javawebinar.basejava.model;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Objects;
 
-public class TextSection implements Section {
+public class TextSection implements Section<String> {
     private final String text;
 
     public TextSection(String text) {
@@ -14,8 +11,9 @@ public class TextSection implements Section {
         this.text = text;
     }
 
-    public List<SectionElement> getSection() {
-        return new ArrayList<>(Arrays.asList(new SectionElement(text)));
+    @Override
+    public String getSectionInfo() {
+        return text;
     }
 
     @Override

@@ -4,18 +4,18 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public class ListSection implements Section {
-    private final List<SectionElement> list;
+public abstract class ListSection<SE> implements Section<List<SE>> {
+    private final List<SE> list;
 
 
-    public ListSection(List<SectionElement> list) {
+    public ListSection(List<SE> list) {
         super();
         Objects.requireNonNull(list, "section must not be null");
         this.list = new ArrayList<>(list);
     }
 
     @Override
-    public List<SectionElement> getSection() {
+    public List<SE> getSectionInfo() {
         return new ArrayList<>(this.list);
     }
 
@@ -23,10 +23,8 @@ public class ListSection implements Section {
     public String toString() {
         StringBuilder sb = new StringBuilder();
 
-        for (SectionElement e : list) {
-            sb.append(e.toString());
-            sb.append('\n');
-            sb.append('\n');
+        for (SE e : list) {
+            sb.append(e.toString()).append('\n').append('\n');
         }
         if (sb.length() > 0)
             sb.deleteCharAt(sb.length() - 1);

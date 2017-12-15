@@ -3,8 +3,8 @@ package ru.javawebinar.basejava;
 import ru.javawebinar.basejava.model.*;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public class MainResume {
     private static final String DOUBLE_SPLITTER = "=============================================";
@@ -18,15 +18,17 @@ public class MainResume {
     private static final String PERSONAL_TEXT = "Some text about personal.";
     private static final String OBJECTIVE_TEXT = "Some text about objectives.";
 
-    private static final SectionElement[] ACHIEVEMENTS = new SectionElement[]{
-            new SectionElement("Archivment one."),
-            new SectionElement("Archivment two."),
-            new SectionElement("Archivment three.")};
+    private static final String[] ACHIEVEMENTS = new String[]{
+            "Achievement one.",
+            "Achievement two.",
+            "Achievement three."};
+    private static final List<String> ACHIEVMENTS_LIST = Arrays.asList(ACHIEVEMENTS);
 
-    private static final SectionElement[] QUALIFICATIONS = new SectionElement[]{
-            new SectionElement("Qualification one."),
-            new SectionElement("Qualification two."),
-            new SectionElement("Qualification three.")};
+    private static final String[] QUALIFICATIONS = new String[]{
+            "Qualification one.",
+            "Qualification two.",
+            "Qualification three."};
+    private static final List<String> QUALIFICATION_LIST = Arrays.asList(QUALIFICATIONS);
 
     private static final SectionElement EXPERIENCE_ELEMENT_1 =
             new SectionElement(
@@ -48,8 +50,8 @@ public class MainResume {
                     "Company 2",
                     "Company two work description");
 
-    private static final SectionElement[] EXPERIENCE_LIST =
-            new SectionElement[]{EXPERIENCE_ELEMENT_1, EXPERIENCE_ELEMENT_2, EXPERIENCE_ELEMENT_3};
+    private static final List<SectionElement> EXPERIENCE_LIST =
+            Arrays.asList(EXPERIENCE_ELEMENT_1, EXPERIENCE_ELEMENT_2, EXPERIENCE_ELEMENT_3);
 
     private static final SectionElement EDUCATION_ELEMENT_1 =
             new SectionElement(
@@ -69,13 +71,14 @@ public class MainResume {
                     LocalDate.of(2012, 1, 1),
                     "University 2");
 
-    private static final SectionElement[] EDUCATION_LIST =
-            new SectionElement[]{EDUCATION_ELEMENT_1, EDUCATION_ELEMENT_2, EDUCATION_ELEMENT_3};
+    private static final List<SectionElement> EDUCATION_LIST =
+            Arrays.asList(EDUCATION_ELEMENT_1, EDUCATION_ELEMENT_2, EDUCATION_ELEMENT_3);
 
     public static void main(String[] args) {
         Resume r = initResumeWithStaticData();
 
         printResume(r);
+
     }
 
     private static Resume initResumeWithStaticData() {
@@ -88,17 +91,11 @@ public class MainResume {
         r.addSection(SectionType.PERSONAL, new TextSection(PERSONAL_TEXT));
         r.addSection(SectionType.OBJECTIVE, new TextSection(OBJECTIVE_TEXT));
 
-        r.addSection(SectionType.ACHIEVEMENT,
-                new ListSection(new ArrayList<>(Arrays.asList(ACHIEVEMENTS))));
+        r.addSection(SectionType.ACHIEVEMENT, new TextListSection(ACHIEVMENTS_LIST));
+        r.addSection(SectionType.QUALIFICATIONS, new TextListSection(QUALIFICATION_LIST));
 
-        r.addSection(SectionType.QUALIFICATIONS,
-                new ListSection(new ArrayList<>(Arrays.asList(QUALIFICATIONS))));
-
-        r.addSection(SectionType.EXPERIENCE,
-                new ListSection(new ArrayList<>(Arrays.asList(EXPERIENCE_LIST))));
-
-        r.addSection(SectionType.EDUCATION,
-                new ListSection(new ArrayList<>(Arrays.asList(EDUCATION_LIST))));
+        r.addSection(SectionType.EXPERIENCE, new TimedListSection(EXPERIENCE_LIST));
+        r.addSection(SectionType.EDUCATION, new TimedListSection(EDUCATION_LIST));
 
         return r;
     }

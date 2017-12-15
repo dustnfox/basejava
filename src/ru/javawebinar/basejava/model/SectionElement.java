@@ -25,33 +25,8 @@ public class SectionElement {
         this(startDate, null, title, text);
     }
 
-    public SectionElement(LocalDate startDate, String title) {
-        this(startDate, null, title, null);
-    }
-
-    public SectionElement(String title, String text) {
-        this(null, null, title, text);
-    }
-
     public SectionElement(String text) {
         this(null, null, null, text);
-    }
-
-
-    public LocalDate getStartDate() {
-        return startDate;
-    }
-
-    public LocalDate getEndDate() {
-        return endDate;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public String getText() {
-        return text;
     }
 
     @Override
@@ -59,7 +34,7 @@ public class SectionElement {
         StringBuilder sb = new StringBuilder();
 
         if (startDate != null) {
-            sb.append(startDate + " - ");
+            sb.append(startDate).append(" - ");
             sb.append(endDate != null ? endDate : NOW_STRING);
             sb.append('\n');
         }
