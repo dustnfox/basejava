@@ -22,7 +22,7 @@ public class MainResume {
             "Achievement one.",
             "Achievement two.",
             "Achievement three."};
-    private static final List<String> ACHIEVMENTS_LIST = Arrays.asList(ACHIEVEMENTS);
+    private static final List<String> ACHIEVEMENTS_LIST = Arrays.asList(ACHIEVEMENTS);
 
     private static final String[] QUALIFICATIONS = new String[]{
             "Qualification one.",
@@ -91,7 +91,7 @@ public class MainResume {
         r.addSection(SectionType.PERSONAL, new TextSection(PERSONAL_TEXT));
         r.addSection(SectionType.OBJECTIVE, new TextSection(OBJECTIVE_TEXT));
 
-        r.addSection(SectionType.ACHIEVEMENT, new TextListSection(ACHIEVMENTS_LIST));
+        r.addSection(SectionType.ACHIEVEMENT, new TextListSection(ACHIEVEMENTS_LIST));
         r.addSection(SectionType.QUALIFICATIONS, new TextListSection(QUALIFICATION_LIST));
 
         r.addSection(SectionType.EXPERIENCE, new TimedListSection(EXPERIENCE_LIST));
@@ -119,11 +119,26 @@ public class MainResume {
             System.out.println(t.getTitle() + '\n');
             Section s = r.getSection(t);
             if (s != null) {
-                System.out.println(s);
-                System.out.println(SPLITTER);
+                String text = s.getText();
+                List<String> textList = s.getListOfStrings();
+                List<SectionElement> elementsList =s.getListOfElements();
+                if(text != null)
+                    System.out.println(text);
+                else if(textList != null)
+                    printList(textList);
+                else
+                    printList(elementsList);
             }
+            System.out.println(SPLITTER);
         }
         System.out.println(DOUBLE_SPLITTER);
         System.out.println("\n");
+    }
+
+    private static <E> void printList(List<E> l) {
+        for(E e : l) {
+            System.out.println(e);
+            System.out.println(System.lineSeparator());
+        }
     }
 }

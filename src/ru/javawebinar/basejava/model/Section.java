@@ -1,7 +1,13 @@
 package ru.javawebinar.basejava.model;
 
-public interface Section<S> {
+import java.util.List;
 
-    S getSectionInfo();
+public interface Section {
+
+    String getText();
+
+    List<String> getListOfStrings();
+
+    List<SectionElement> getListOfElements();
 
 }

@@ -1,8 +1,9 @@
 package ru.javawebinar.basejava.model;
 
+import java.util.List;
 import java.util.Objects;
 
-public class TextSection implements Section<String> {
+public class TextSection implements Section {
     private final String text;
 
     public TextSection(String text) {
@@ -12,12 +13,22 @@ public class TextSection implements Section<String> {
     }
 
     @Override
-    public String getSectionInfo() {
+    public String toString() {
         return text;
     }
 
     @Override
-    public String toString() {
+    public String getText() {
         return text;
+    }
+
+    @Override
+    public List<String> getListOfStrings() {
+        return null;
+    }
+
+    @Override
+    public List<SectionElement> getListOfElements() {
+        return null;
     }
 }
