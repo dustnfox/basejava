@@ -17,13 +17,5 @@ public enum SectionType {
     public String getTitle() {
         return title;
     }
-
-    public boolean isMultiline() {
-        return this != SectionType.PERSONAL && this != SectionType.OBJECTIVE;
-    }
-
-    public boolean hasDate() {
-        return this == SectionType.EXPERIENCE || this == SectionType.EDUCATION;
-    }
 }
 

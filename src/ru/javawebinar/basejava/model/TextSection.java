@@ -1,34 +1,38 @@
 package ru.javawebinar.basejava.model;
 
-import java.util.List;
 import java.util.Objects;
 
-public class TextSection implements Section {
-    private final String text;
+public class TextSection extends Section {
+    private final String content;
 
-    public TextSection(String text) {
-        super();
-        Objects.requireNonNull(text, "text must not be null");
-        this.text = text;
+    public TextSection(String content) {
+        Objects.requireNonNull(content, "content must not be null");
+        this.content = content;
+    }
+
+    public String getContent() {
+        return content;
     }
 
     @Override
     public String toString() {
-        return text;
+        return content;
     }
 
     @Override
-    public String getText() {
-        return text;
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        TextSection that = (TextSection) o;
+
+        return content.equals(that.content);
+
     }
 
     @Override
-    public List<String> getListOfStrings() {
-        return null;
-    }
-
-    @Override
-    public List<SectionElement> getListOfElements() {
-        return null;
+    public int hashCode() {
+        return content.hashCode();
     }
 }
+
