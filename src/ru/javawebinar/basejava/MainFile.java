@@ -3,6 +3,9 @@ package ru.javawebinar.basejava;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.List;
+
+import static ru.javawebinar.basejava.util.FileUtil.getFilesInDirectory;
 
 /**
  * gkislin
@@ -20,12 +23,9 @@ public class MainFile {
         }
 
         File dir = new File("./src/ru/javawebinar/basejava");
-        System.out.println(dir.isDirectory());
-        String[] list = dir.list();
-        if (list != null) {
-            for (String name : list) {
-                System.out.println(name);
-            }
+        List<File> listOfFiles = getFilesInDirectory(dir);
+        for(File f : listOfFiles) {
+            System.out.println(f.getAbsolutePath());
         }
 
         try (FileInputStream fis = new FileInputStream(filePath)) {
