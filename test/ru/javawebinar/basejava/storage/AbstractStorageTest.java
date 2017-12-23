@@ -6,8 +6,8 @@ import ru.javawebinar.basejava.exception.ExistStorageException;
 import ru.javawebinar.basejava.exception.NotExistStorageException;
 import ru.javawebinar.basejava.model.*;
 
+import java.io.File;
 import java.time.Month;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -15,105 +15,61 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public abstract class AbstractStorageTest {
+    protected static final File STORAGE_DIR = new File("C:\\projects\\storage");
+
     protected Storage storage;
 
-    private static final String UUID = "uuid";
-    private static final String FULL_NAME = "Full Name";
-    private static final String PHONE = "+7910984";
-    private static final String OBJECTIVE = "Objective text";
-    private static final String PERSONAL = "Personal text";
-    private static final String ACHIEVEMENT = "Achievement";
-    private static final String QUALIFICATIONS = "Qualification";
-    private static final String ORG_NAME = "Organization name";
-    private static final String ORG_URL_PREFIX = "https://www.organization";
-    private static final String ORG_URL_SUFFIX = ".com";
-    private static final String EDU_NAME = "University";
-    private static final String EDU_URL_PREFIX = "https://www.university";
-    private static final String EDU_URL_SUFFIX = ".edu";
-    private static final String POSITION_TITLE = "Position title";
-    private static final String POSITION_DESCRIPTION = "Position description";
-    private static final int POSITION_YEAR = 2000;
-
     private static final String UUID_1 = "uuid1";
+    private static final String UUID_2 = "uuid2";
+    private static final String UUID_3 = "uuid3";
+    private static final String UUID_4 = "uuid4";
 
-    private static final Resume RESUME_1 = constructResume(1, 3);
-    private static final Resume RESUME_2 = constructResume(2, 3);
-    private static final Resume RESUME_3 = constructResume(3, 3);
-    private static final Resume RESUME_4 = constructResume(4, 3);
+    private static final Resume R1;
+    private static final Resume R2;
+    private static final Resume R3;
+    private static final Resume R4;
 
-    private static Resume constructResume(int rNumber, int listSizes) {
-        Resume r = new Resume(UUID + rNumber, FULL_NAME + " " + rNumber);
+    static {
+        R1 = new Resume(UUID_1, "Name1");
+        R2 = new Resume(UUID_2, "Name2");
+        R3 = new Resume(UUID_3, "Name3");
+        R4 = new Resume(UUID_4, "Name4");
 
-        r.addContact(ContactType.PHONE, String.format("%s%04d", PHONE, rNumber));
-
-        r.addSection(SectionType.PERSONAL, new TextSection(PERSONAL));
-        r.addSection(SectionType.OBJECTIVE, new TextSection(OBJECTIVE));
-
-        List<String> achievementList = new ArrayList<>(listSizes);
-        for (int i = 1; i <= listSizes; i++) {
-            achievementList.add(String.format("%s %d_%d", ACHIEVEMENT, rNumber, i));
-        }
-        r.addSection(SectionType.ACHIEVEMENT, new ListSection(achievementList));
-
-        List<String> qualificationList = new ArrayList<>(listSizes);
-        for (int i = 1; i <= listSizes; i++) {
-            qualificationList.add(String.format("%s %d_%d", QUALIFICATIONS, rNumber, i));
-        }
-        r.addSection(SectionType.QUALIFICATIONS, new ListSection(qualificationList));
-
-        List<Organization> organizationsList = new ArrayList<>(listSizes);
-        for (int i = 1; i <= listSizes; i++) {
-            organizationsList.add(
-                    new Organization(
-                            String.format("%s %d_%d", ORG_NAME, rNumber, i),
-                            String.format("%s-%d-%d%s", ORG_URL_PREFIX, rNumber, i, ORG_URL_SUFFIX),
-                            Arrays.asList(
-                                    new Position(
-                                            POSITION_YEAR + i, Month.JANUARY,
-                                            POSITION_YEAR + 1 + i, Month.JULY,
-                                            String.format("%s %d_%d", POSITION_TITLE, rNumber, i),
-                                            String.format("%s %d_%d", POSITION_DESCRIPTION, rNumber, i)
-                                    )
-                            )
-                    )
-            );
-        }
-        r.addSection(SectionType.EXPERIENCE, new OrganizationSection(organizationsList));
-
-
-        List<Organization> educationsList = new ArrayList<>(listSizes);
-        for (int i = 1; i <= listSizes; i++) {
-            educationsList.add(
-                    new Organization(
-                            String.format("%s %d_%d", EDU_NAME, rNumber, i),
-                            String.format("%s-%d-%d%s", EDU_URL_PREFIX, rNumber, i, EDU_URL_SUFFIX),
-                            Arrays.asList(
-                                    new Position(
-                                            POSITION_YEAR - i, Month.JANUARY,
-                                            POSITION_YEAR + 1 - i, Month.JULY,
-                                            String.format("%s %d_%d", POSITION_TITLE, rNumber, i),
-                                            null
-                                    )
-                            )
-                    )
-            );
-        }
-        r.addSection(SectionType.EDUCATION, new OrganizationSection(educationsList));
-
-        return r;
+        R1.addContact(ContactType.MAIL, "mail1@ya.ru");
+        R1.addContact(ContactType.PHONE, "11111");
+        R1.addSection(SectionType.OBJECTIVE, new TextSection("Objective1"));
+        R1.addSection(SectionType.PERSONAL, new TextSection("Personal data"));
+        R1.addSection(SectionType.ACHIEVEMENT, new ListSection("Achivment11", "Achivment12", "Achivment13"));
+        R1.addSection(SectionType.QUALIFICATIONS, new ListSection("Java", "SQL", "JavaScript"));
+        R1.addSection(SectionType.EXPERIENCE,
+                new OrganizationSection(
+                        new Organization("Organization11", "http://Organization11.ru",
+                                new Organization.Position(2005, Month.JANUARY, "position1", "content1"),
+                                new Organization.Position(2001, Month.MARCH, 2005, Month.JANUARY, "position2", "content2"))));
+        R1.addSection(SectionType.EDUCATION,
+                new OrganizationSection(
+                        new Organization("Institute", null,
+                                new Organization.Position(1996, Month.JANUARY, 2000, Month.DECEMBER, "aspirant", null),
+                                new Organization.Position(2001, Month.MARCH, 2005, Month.JANUARY, "student", "IT facultet")),
+                        new Organization("Organization12", "http://Organization12.ru")));
+        R2.addContact(ContactType.SKYPE, "skype2");
+        R2.addContact(ContactType.PHONE, "22222");
+        R1.addSection(SectionType.EXPERIENCE,
+                new OrganizationSection(
+                        new Organization("Organization2", "http://Organization2.ru",
+                                new Organization.Position(2015, Month.JANUARY, "position1", "content1"))));
     }
 
-
-    public AbstractStorageTest(Storage storage) {
+    protected AbstractStorageTest(Storage storage) {
         this.storage = storage;
     }
 
     @Before
     public void setUp() throws Exception {
         storage.clear();
-        storage.save(RESUME_1);
-        storage.save(RESUME_2);
-        storage.save(RESUME_3);
+        storage.save(R1);
+        storage.save(R2);
+        storage.save(R3);
     }
 
     @Test
@@ -131,7 +87,7 @@ public abstract class AbstractStorageTest {
     public void update() throws Exception {
         Resume newResume = new Resume(UUID_1, "New Name");
         storage.update(newResume);
-        assertTrue(newResume == storage.get(UUID_1));
+        assertTrue(newResume.equals(storage.get(UUID_1)));
     }
 
     @Test(expected = NotExistStorageException.class)
@@ -143,19 +99,19 @@ public abstract class AbstractStorageTest {
     public void getAllSorted() throws Exception {
         List<Resume> list = storage.getAllSorted();
         assertEquals(3, list.size());
-        assertEquals(list, Arrays.asList(RESUME_1, RESUME_2, RESUME_3));
+        assertEquals(list, Arrays.asList(R1, R2, R3));
     }
 
     @Test
     public void save() throws Exception {
-        storage.save(RESUME_4);
+        storage.save(R4);
         assertSize(4);
-        assertGet(RESUME_4);
+        assertGet(R4);
     }
 
     @Test(expected = ExistStorageException.class)
     public void saveExist() throws Exception {
-        storage.save(RESUME_1);
+        storage.save(R1);
     }
 
     @Test(expected = NotExistStorageException.class)
@@ -172,9 +128,9 @@ public abstract class AbstractStorageTest {
 
     @Test
     public void get() throws Exception {
-        assertGet(RESUME_1);
-        assertGet(RESUME_2);
-        assertGet(RESUME_3);
+        assertGet(R1);
+        assertGet(R2);
+        assertGet(R3);
     }
 
     @Test(expected = NotExistStorageException.class)

@@ -3,9 +3,6 @@ package ru.javawebinar.basejava;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.List;
-
-import static ru.javawebinar.basejava.util.FileUtil.getFilesInDirectory;
 
 /**
  * gkislin
@@ -23,15 +20,40 @@ public class MainFile {
         }
 
         File dir = new File("./src/ru/javawebinar/basejava");
-        List<File> listOfFiles = getFilesInDirectory(dir);
-        for(File f : listOfFiles) {
-            System.out.println(f.getAbsolutePath());
+        System.out.println(dir.isDirectory());
+        String[] list = dir.list();
+        if (list != null) {
+            for (String name : list) {
+                System.out.println(name);
+            }
         }
 
         try (FileInputStream fis = new FileInputStream(filePath)) {
             System.out.println(fis.read());
         } catch (IOException e) {
             throw new RuntimeException(e);
+        }
+        printDirectoryDeeply(dir);
+    }
+
+    public static void printDirectoryDeeply(File f) {
+        printDirectoryDeeplyHelper(f, "");
+    }
+
+
+    private static void printDirectoryDeeplyHelper(File dir, String prefix) {
+        final String PREFIX_ELEMENT = "  ";
+        File[] files = dir.listFiles();
+
+        if (files != null) {
+            for (File file : files) {
+                if (file.isFile()) {
+                    System.out.println(prefix + "File: " + file.getName());
+                } else if (file.isDirectory()) {
+                    System.out.println(prefix + "Directory: " + file.getName());
+                    printDirectoryDeeplyHelper(file, prefix + PREFIX_ELEMENT);
+                }
+            }
         }
     }
 }
