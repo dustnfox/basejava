@@ -23,10 +23,6 @@ public class OrganizationSection extends Section {
         this.organizations = organizations;
     }
 
-    public List<Organization> getOrganizations() {
-        return organizations;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

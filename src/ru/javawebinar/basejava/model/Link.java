@@ -19,14 +19,6 @@ public class Link implements Serializable {
         this.url = url;
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public String getUrl() {
-        return url;
-    }
-
     @Override
     public String toString() {
         return "Link(" + name + ',' + url + ')';
