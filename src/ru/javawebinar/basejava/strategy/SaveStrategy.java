@@ -1,4 +1,4 @@
-package ru.javawebinar.basejava.storage;
+package ru.javawebinar.basejava.strategy;
 
 import ru.javawebinar.basejava.model.Resume;
 

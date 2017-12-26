@@ -2,6 +2,7 @@ package ru.javawebinar.basejava.storage;
 
 import ru.javawebinar.basejava.exception.StorageException;
 import ru.javawebinar.basejava.model.Resume;
+import ru.javawebinar.basejava.strategy.SaveStrategy;
 
 import java.io.*;
 import java.nio.file.FileAlreadyExistsException;
@@ -26,11 +27,6 @@ public class StrategyFileStorage extends AbstractStorage<File> {
         }
         this.directory = directory;
         strategy = saveStrategy;
-    }
-
-    public void setStrategy(SaveStrategy saveStrategy) {
-        Objects.requireNonNull(saveStrategy, "saveStrategy must not be null");
-        this.strategy = saveStrategy;
     }
 
     @Override
