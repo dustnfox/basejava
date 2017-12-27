@@ -33,25 +33,19 @@ public class MainFile {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        printDirectoryDeeply(dir);
+        printDirectoryDeeply(dir, "");
     }
-
-    public static void printDirectoryDeeply(File f) {
-        printDirectoryDeeplyHelper(f, "");
-    }
-
-
-    private static void printDirectoryDeeplyHelper(File dir, String prefix) {
-        final String PREFIX_ELEMENT = "  ";
+    
+    public static void printDirectoryDeeply(File dir, String offset) {
         File[] files = dir.listFiles();
 
         if (files != null) {
             for (File file : files) {
                 if (file.isFile()) {
-                    System.out.println(prefix + "File: " + file.getName());
+                    System.out.println(offset + "F: " + file.getName());
                 } else if (file.isDirectory()) {
-                    System.out.println(prefix + "Directory: " + file.getName());
-                    printDirectoryDeeplyHelper(file, prefix + PREFIX_ELEMENT);
+                    System.out.println(offset + "D: " + file.getName());
+                    printDirectoryDeeply(file, offset + "  ");
                 }
             }
         }
