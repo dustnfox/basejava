@@ -21,6 +21,7 @@ public class Organization implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private Link homePage;
+
     private List<Position> positions = new ArrayList<>();
 
     public Organization() {
@@ -52,6 +53,14 @@ public class Organization implements Serializable {
     @Override
     public String toString() {
         return "Organization(" + homePage + "," + positions + ')';
+    }
+
+    public Link getHomePage() {
+        return homePage;
+    }
+
+    public List<Position> getPositions() {
+        return positions;
     }
 
     /**
