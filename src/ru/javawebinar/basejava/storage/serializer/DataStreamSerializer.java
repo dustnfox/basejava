@@ -30,42 +30,47 @@ public class DataStreamSerializer implements StreamSerializer {
             Map<SectionType, Section> sections = r.getSections();
             dos.writeInt(sections.size());
             for (Map.Entry<SectionType, Section> section : sections.entrySet()) {
-                if (section.getValue() != null) {
-                    dos.writeUTF(section.getKey().name());
-                    dos.writeUTF(section.getValue().getClass().getName());
+                SectionType sectionType = section.getKey();
+                dos.writeUTF(sectionType.name());
 
-                    if (section.getValue() instanceof TextSection) {
+                if (section.getValue() == null) { // has Section?
+                    dos.writeBoolean(false);
+                } else {
+                    dos.writeBoolean(true);
 
-                        dos.writeUTF(((TextSection) section.getValue()).getContent());
-
-                    } else if (section.getValue() instanceof ListSection) {
-
-                        ListSection listSection = (ListSection) section.getValue();
-                        dos.writeInt(listSection.getItems().size());
-                        for (String s : listSection.getItems()) {
-                            dos.writeUTF(s);
-                        }
-
-                    } else if (section.getValue() instanceof OrganizationSection) {
-
-                        OrganizationSection orgSection = (OrganizationSection) section.getValue();
-                        dos.writeInt(orgSection.getOrganizations().size());
-
-                        for (Organization org : orgSection.getOrganizations()) {
-                            dos.writeUTF(org.getHomePage().getName());
-                            String url = org.getHomePage().getUrl();
-                            dos.writeUTF(url != null ? url : NULL_STRING);
-                            dos.writeInt(org.getPositions().size());
-
-                            for (Organization.Position pos : org.getPositions()) {
-                                dos.writeUTF(pos.getStartDate().toString());
-                                dos.writeUTF(pos.getEndDate().toString());
-                                dos.writeUTF(pos.getTitle());
-                                String posDescr = pos.getDescription();
-                                dos.writeUTF(posDescr != null ? posDescr : NULL_STRING);
+                    switch (sectionType) {
+                        case PERSONAL:
+                        case OBJECTIVE:
+                            dos.writeUTF(((TextSection) section.getValue()).getContent());
+                            break;
+                        case ACHIEVEMENT:
+                        case QUALIFICATIONS:
+                            ListSection listSection = (ListSection) section.getValue();
+                            dos.writeInt(listSection.getItems().size());
+                            for (String s : listSection.getItems()) {
+                                dos.writeUTF(s);
                             }
-                        }
+                            break;
+                        case EXPERIENCE:
+                        case EDUCATION:
+                            OrganizationSection orgSection = (OrganizationSection) section.getValue();
+                            dos.writeInt(orgSection.getOrganizations().size());
 
+                            for (Organization org : orgSection.getOrganizations()) {
+                                dos.writeUTF(org.getHomePage().getName());
+                                String url = org.getHomePage().getUrl();
+                                dos.writeUTF(url != null ? url : NULL_STRING);
+                                dos.writeInt(org.getPositions().size());
+
+                                for (Organization.Position pos : org.getPositions()) {
+                                    dos.writeUTF(pos.getStartDate().toString());
+                                    dos.writeUTF(pos.getEndDate().toString());
+                                    dos.writeUTF(pos.getTitle());
+                                    String posDescr = pos.getDescription();
+                                    dos.writeUTF(posDescr != null ? posDescr : NULL_STRING);
+                                }
+                            }
+                            break;
                     }
                 }
             }
@@ -89,55 +94,59 @@ public class DataStreamSerializer implements StreamSerializer {
             int sectionsCount = dis.readInt();
             for (int i = 0; i < sectionsCount; i++) {
                 SectionType sectionType = SectionType.valueOf(dis.readUTF());
+                boolean hasSection = dis.readBoolean();
                 Section section = null;
-                String className = dis.readUTF();
+                if (hasSection) {
+                    switch (sectionType) {
+                        case PERSONAL:
+                        case OBJECTIVE:
+                            String content = dis.readUTF();
+                            section = new TextSection(content);
+                            break;
+                        case ACHIEVEMENT:
+                        case QUALIFICATIONS:
+                            int itemsCount = dis.readInt();
+                            List<String> items = new ArrayList<>(itemsCount);
+                            while (itemsCount-- > 0) {
+                                items.add(dis.readUTF());
+                            }
+                            section = new ListSection(items);
+                            break;
+                        case EXPERIENCE:
+                        case EDUCATION:
+                            int organizationsCount = dis.readInt();
+                            List<Organization> organizations = new ArrayList<>(organizationsCount);
 
-                if (className.equals(TextSection.class.getName())) {
-                    String content = dis.readUTF();
-                    section = new TextSection(content);
+                            while (organizationsCount-- > 0) {
+                                String name = dis.readUTF();
+                                String url = dis.readUTF();
+                                Link link = new Link(name, url.equals(NULL_STRING) ? null : url);
 
-                } else if (className.equals(ListSection.class.getName())) {
-                    int itemsCount = dis.readInt();
-                    List<String> items = new ArrayList<>(itemsCount);
-                    while (itemsCount-- > 0) {
-                        items.add(dis.readUTF());
+                                int positionsCount = dis.readInt();
+                                List<Organization.Position> positions = new ArrayList<>(positionsCount);
+
+                                while (positionsCount-- > 0) {
+                                    LocalDate startDate = LocalDate.parse(dis.readUTF());
+                                    LocalDate endDate = LocalDate.parse(dis.readUTF());
+                                    String title = dis.readUTF();
+                                    String description = dis.readUTF();
+                                    Organization.Position position = new Organization.Position(
+                                            startDate,
+                                            endDate,
+                                            title,
+                                            description.equals(NULL_STRING) ? null : description);
+                                    positions.add(position);
+                                }
+
+                                organizations.add(new Organization(link, positions));
+
+                            }
+
+                            section = new OrganizationSection(organizations);
+
+                            break;
                     }
-
-                    section = new ListSection(items);
-
-                } else if (className.equals(OrganizationSection.class.getName())) {
-                    int organizationsCount = dis.readInt();
-                    List<Organization> organizations = new ArrayList<>(organizationsCount);
-
-                    while (organizationsCount-- > 0) {
-                        String name = dis.readUTF();
-                        String url = dis.readUTF();
-                        Link link = new Link(name, url.equals(NULL_STRING) ? null : url);
-
-                        int positionsCount = dis.readInt();
-                        List<Organization.Position> positions = new ArrayList<>(positionsCount);
-
-                        while (positionsCount-- > 0) {
-                            LocalDate startDate = LocalDate.parse(dis.readUTF());
-                            LocalDate endDate = LocalDate.parse(dis.readUTF());
-                            String title = dis.readUTF();
-                            String description = dis.readUTF();
-                            Organization.Position position = new Organization.Position(
-                                    startDate,
-                                    endDate,
-                                    title,
-                                    description.equals(NULL_STRING) ? null : description);
-                            positions.add(position);
-                        }
-
-                        organizations.add(new Organization(link, positions));
-
-                    }
-
-                    section = new OrganizationSection(organizations);
-
                 }
-
                 r.addSection(sectionType, section);
             }
 
