@@ -4,13 +4,26 @@ import ru.javawebinar.basejava.model.*;
 
 import java.io.*;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class DataStreamSerializer implements StreamSerializer {
 
     private static final String NULL_STRING = "";
+
+    @FunctionalInterface
+    private interface DOSWriter<E> {
+        void doElementWrite(DataOutputStream dos, E element) throws IOException;
+    }
+
+
+    private <E> void doCollectionWrite(Collection<E> list, DataOutputStream dos, DOSWriter<E> elementWriter)
+            throws IOException {
+
+        dos.writeInt(list.size());
+        for (E element : list) {
+            elementWriter.doElementWrite(dos, element);
+        }
+    }
 
     @Override
     public void doWrite(Resume r, OutputStream os) throws IOException {
@@ -18,62 +31,56 @@ public class DataStreamSerializer implements StreamSerializer {
             dos.writeUTF(r.getUuid());
             dos.writeUTF(r.getFullName());
 
-            Map<ContactType, String> contacts = r.getContacts();
-            dos.writeInt(contacts.size());
-            for (Map.Entry<ContactType, String> contact : contacts.entrySet()) {
-                if (contact.getValue() != null) {
-                    dos.writeUTF(contact.getKey().name());
-                    dos.writeUTF(contact.getValue());
+            Set<Map.Entry<ContactType, String>> contacts = r.getContacts().entrySet();
+            doCollectionWrite(contacts, dos, (outStream, element) -> {
+                if (element.getValue() != null) {
+                    outStream.writeUTF(element.getKey().name());
+                    outStream.writeUTF(element.getValue());
                 }
-            }
+            });
 
-            Map<SectionType, Section> sections = r.getSections();
-            dos.writeInt(sections.size());
-            for (Map.Entry<SectionType, Section> section : sections.entrySet()) {
+            Set<Map.Entry<SectionType, Section>> sections = r.getSections().entrySet();
+            doCollectionWrite(sections, dos, (outStream, section) -> {
                 SectionType sectionType = section.getKey();
-                dos.writeUTF(sectionType.name());
+                outStream.writeUTF(sectionType.name());
 
-                if (section.getValue() == null) { // has Section?
-                    dos.writeBoolean(false);
+                if (section.getValue() == null) {
+                    outStream.writeBoolean(false);
                 } else {
-                    dos.writeBoolean(true);
+                    outStream.writeBoolean(true);
 
                     switch (sectionType) {
                         case PERSONAL:
                         case OBJECTIVE:
-                            dos.writeUTF(((TextSection) section.getValue()).getContent());
+                            TextSection textSection = (TextSection) section.getValue();
+                            outStream.writeUTF(textSection.getContent());
                             break;
+
                         case ACHIEVEMENT:
                         case QUALIFICATIONS:
                             ListSection listSection = (ListSection) section.getValue();
-                            dos.writeInt(listSection.getItems().size());
-                            for (String s : listSection.getItems()) {
-                                dos.writeUTF(s);
-                            }
+                            doCollectionWrite(listSection.getItems(), outStream, DataOutputStream::writeUTF);
                             break;
+
                         case EXPERIENCE:
                         case EDUCATION:
                             OrganizationSection orgSection = (OrganizationSection) section.getValue();
-                            dos.writeInt(orgSection.getOrganizations().size());
-
-                            for (Organization org : orgSection.getOrganizations()) {
-                                dos.writeUTF(org.getHomePage().getName());
+                            doCollectionWrite(orgSection.getOrganizations(), outStream, (out, org) -> {
+                                out.writeUTF(org.getHomePage().getName());
                                 String url = org.getHomePage().getUrl();
-                                dos.writeUTF(url != null ? url : NULL_STRING);
-                                dos.writeInt(org.getPositions().size());
-
-                                for (Organization.Position pos : org.getPositions()) {
-                                    dos.writeUTF(pos.getStartDate().toString());
-                                    dos.writeUTF(pos.getEndDate().toString());
-                                    dos.writeUTF(pos.getTitle());
-                                    String posDescr = pos.getDescription();
-                                    dos.writeUTF(posDescr != null ? posDescr : NULL_STRING);
-                                }
-                            }
+                                out.writeUTF(url != null ? url : NULL_STRING);
+                                doCollectionWrite(org.getPositions(), out, (o, pos) -> {
+                                    o.writeUTF(pos.getStartDate().toString());
+                                    o.writeUTF(pos.getEndDate().toString());
+                                    o.writeUTF(pos.getTitle());
+                                    String descr = pos.getDescription();
+                                    o.writeUTF(descr != null ? descr : NULL_STRING);
+                                });
+                            });
                             break;
                     }
                 }
-            }
+            });
         }
     }
 
@@ -84,6 +91,7 @@ public class DataStreamSerializer implements StreamSerializer {
             String fullName = dis.readUTF();
             Resume r = new Resume(uuid, fullName);
 
+
             int contactsCount = dis.readInt();
             while (contactsCount-- > 0) {
                 ContactType contactType = ContactType.valueOf(dis.readUTF());
@@ -92,7 +100,7 @@ public class DataStreamSerializer implements StreamSerializer {
             }
 
             int sectionsCount = dis.readInt();
-            for (int i = 0; i < sectionsCount; i++) {
+            while (sectionsCount-- > 0) {
                 SectionType sectionType = SectionType.valueOf(dis.readUTF());
                 boolean hasSection = dis.readBoolean();
                 Section section = null;
