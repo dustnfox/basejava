@@ -25,6 +25,24 @@ public class DataStreamSerializer implements StreamSerializer {
         }
     }
 
+    @FunctionalInterface
+    private interface DISReader<E> {
+        E doElementRead(DataInputStream dis) throws IOException;
+    }
+
+
+    private <E> List<E> doCollectionRead(DataInputStream dis, DISReader<E> elementReader)
+            throws IOException {
+
+        int size = dis.readInt();
+        List<E> list = new ArrayList<>(size);
+        while (size-- > 0) {
+            list.add(elementReader.doElementRead(dis));
+        }
+
+        return list;
+    }
+
     @Override
     public void doWrite(Resume r, OutputStream os) throws IOException {
         try (DataOutputStream dos = new DataOutputStream(os)) {
@@ -33,8 +51,11 @@ public class DataStreamSerializer implements StreamSerializer {
 
             Set<Map.Entry<ContactType, String>> contacts = r.getContacts().entrySet();
             doCollectionWrite(contacts, dos, (outStream, element) -> {
-                if (element.getValue() != null) {
-                    outStream.writeUTF(element.getKey().name());
+                outStream.writeUTF(element.getKey().name());
+                if (element.getValue() == null) {
+                    outStream.writeBoolean(false);
+                } else {
+                    outStream.writeBoolean(true);
                     outStream.writeUTF(element.getValue());
                 }
             });
@@ -91,12 +112,14 @@ public class DataStreamSerializer implements StreamSerializer {
             String fullName = dis.readUTF();
             Resume r = new Resume(uuid, fullName);
 
-
             int contactsCount = dis.readInt();
             while (contactsCount-- > 0) {
                 ContactType contactType = ContactType.valueOf(dis.readUTF());
-                String contactInfo = dis.readUTF();
-                r.addContact(contactType, contactInfo);
+                boolean hasContact = dis.readBoolean();
+                if (hasContact) {
+                    String contactInfo = dis.readUTF();
+                    r.addContact(contactType, contactInfo);
+                }
             }
 
             int sectionsCount = dis.readInt();
@@ -113,43 +136,28 @@ public class DataStreamSerializer implements StreamSerializer {
                             break;
                         case ACHIEVEMENT:
                         case QUALIFICATIONS:
-                            int itemsCount = dis.readInt();
-                            List<String> items = new ArrayList<>(itemsCount);
-                            while (itemsCount-- > 0) {
-                                items.add(dis.readUTF());
-                            }
+                            List<String> items = doCollectionRead(dis, DataInput::readUTF);
                             section = new ListSection(items);
                             break;
                         case EXPERIENCE:
                         case EDUCATION:
-                            int organizationsCount = dis.readInt();
-                            List<Organization> organizations = new ArrayList<>(organizationsCount);
-
-                            while (organizationsCount-- > 0) {
-                                String name = dis.readUTF();
-                                String url = dis.readUTF();
+                            List<Organization> organizations;
+                            organizations = doCollectionRead(dis, (inputStream) -> {
+                                String name = inputStream.readUTF();
+                                String url = inputStream.readUTF();
                                 Link link = new Link(name, url.equals(NULL_STRING) ? null : url);
 
-                                int positionsCount = dis.readInt();
-                                List<Organization.Position> positions = new ArrayList<>(positionsCount);
-
-                                while (positionsCount-- > 0) {
-                                    LocalDate startDate = LocalDate.parse(dis.readUTF());
-                                    LocalDate endDate = LocalDate.parse(dis.readUTF());
-                                    String title = dis.readUTF();
-                                    String description = dis.readUTF();
-                                    Organization.Position position = new Organization.Position(
-                                            startDate,
-                                            endDate,
-                                            title,
-                                            description.equals(NULL_STRING) ? null : description);
-                                    positions.add(position);
-                                }
-
-                                organizations.add(new Organization(link, positions));
-
-                            }
-
+                                return new Organization(link, doCollectionRead(inputStream, (in) -> {
+                                    LocalDate startDate = LocalDate.parse(in.readUTF());
+                                    LocalDate endDate = LocalDate.parse(in.readUTF());
+                                    String title = in.readUTF();
+                                    String descr = in.readUTF();
+                                    return new Organization.Position(startDate
+                                            , endDate
+                                            , title
+                                            , descr.equals(NULL_STRING) ? null : descr);
+                                }));
+                            });
                             section = new OrganizationSection(organizations);
 
                             break;
