@@ -49,7 +49,9 @@ public class SqlStorage implements Storage {
                 , (ps) -> {
                     ps.setString(1, r.getFullName());
                     ps.setString(2, r.getUuid());
-                    ps.execute();
+                    if (ps.executeUpdate() == 0) {
+                        throw new NotExistStorageException(r.getUuid());
+                    }
                 });
     }
 
@@ -100,7 +102,7 @@ public class SqlStorage implements Storage {
                 , ps -> {
                     ResultSet rs = ps.executeQuery();
                     if (!rs.next()) {
-                        throw new StorageException("SQL error");
+                        throw new StorageException("SQL error. Can't get the size of the table.");
                     }
                     return rs.getInt(1);
                 });
