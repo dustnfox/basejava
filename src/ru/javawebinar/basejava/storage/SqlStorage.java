@@ -4,34 +4,29 @@ import ru.javawebinar.basejava.exception.ExistStorageException;
 import ru.javawebinar.basejava.exception.NotExistStorageException;
 import ru.javawebinar.basejava.exception.StorageException;
 import ru.javawebinar.basejava.model.Resume;
-import ru.javawebinar.basejava.sql.ConnectionFactory;
-import ru.javawebinar.basejava.util.SqlUtil;
+import ru.javawebinar.basejava.sql.SqlUtil;
 
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 public class SqlStorage implements Storage {
-    private final ConnectionFactory connectionFactory;
+
+    private final SqlUtil sqlUtil;
 
     public SqlStorage(String dbUrl, String dbUser, String dbPassword) {
-        connectionFactory = () -> DriverManager.getConnection(dbUrl, dbUser, dbPassword);
+        sqlUtil = new SqlUtil(dbUrl, dbUser, dbPassword);
     }
 
     @Override
     public void clear() {
-        SqlUtil.executeChangeQuery(connectionFactory
-                , "DELETE FROM resume"
-                , PreparedStatement::execute);
+        sqlUtil.executeChangeQuery("DELETE FROM resume", PreparedStatement::execute);
     }
 
     @Override
     public Resume get(String uuid) {
-        return SqlUtil.executeGetQuery(connectionFactory
-                , "SELECT * FROM resume r WHERE r.uuid =?"
+        return sqlUtil.executeGetQuery("SELECT * FROM resume r WHERE r.uuid =?"
                 , ps -> {
                     ps.setString(1, uuid);
                     ResultSet rs = ps.executeQuery();
@@ -44,8 +39,7 @@ public class SqlStorage implements Storage {
 
     @Override
     public void update(Resume r) {
-        SqlUtil.executeChangeQuery(connectionFactory
-                , "UPDATE resume SET full_name = ? WHERE uuid = ?"
+        sqlUtil.executeChangeQuery("UPDATE resume SET full_name = ? WHERE uuid = ?"
                 , (ps) -> {
                     ps.setString(1, r.getFullName());
                     ps.setString(2, r.getUuid());
@@ -57,8 +51,7 @@ public class SqlStorage implements Storage {
 
     @Override
     public void save(Resume r) {
-        SqlUtil.executeChangeQuery(connectionFactory
-                , "INSERT INTO resume (uuid, full_name) VALUES (?,?) ON CONFLICT DO NOTHING"
+        sqlUtil.executeChangeQuery("INSERT INTO resume (uuid, full_name) VALUES (?,?) ON CONFLICT DO NOTHING"
                 , (ps) -> {
                     ps.setString(1, r.getUuid());
                     ps.setString(2, r.getFullName());
@@ -70,8 +63,7 @@ public class SqlStorage implements Storage {
 
     @Override
     public void delete(String uuid) {
-        SqlUtil.executeChangeQuery(connectionFactory
-                , "DELETE FROM resume WHERE uuid = ?"
+        sqlUtil.executeChangeQuery("DELETE FROM resume WHERE uuid = ?"
                 , (ps) -> {
                     ps.setString(1, uuid);
                     if (ps.executeUpdate() == 0) {
@@ -82,8 +74,7 @@ public class SqlStorage implements Storage {
 
     @Override
     public List<Resume> getAllSorted() {
-        return SqlUtil.executeGetQuery(connectionFactory
-                , "SELECT * FROM resume r ORDER BY uuid"
+        return sqlUtil.executeGetQuery("SELECT * FROM resume r ORDER BY uuid"
                 , ps -> {
                     List<Resume> list = new ArrayList<>();
                     ResultSet rs = ps.executeQuery();
@@ -96,8 +87,7 @@ public class SqlStorage implements Storage {
 
     @Override
     public int size() {
-        return SqlUtil.executeGetQuery(connectionFactory
-                , "SELECT COUNT(*) FROM resume"
+        return sqlUtil.executeGetQuery("SELECT COUNT(*) FROM resume"
                 , ps -> {
                     ResultSet rs = ps.executeQuery();
                     if (!rs.next()) {
