@@ -83,14 +83,13 @@ public class SqlStorage implements Storage {
     @Override
     public List<Resume> getAllSorted() {
         return SqlUtil.executeGetQuery(connectionFactory
-                , "SELECT * FROM resume r"
+                , "SELECT * FROM resume r ORDER BY uuid"
                 , ps -> {
                     List<Resume> list = new ArrayList<>();
                     ResultSet rs = ps.executeQuery();
                     while (rs.next()) {
                         list.add(new Resume(rs.getString("uuid").trim(), rs.getString("full_name")));
                     }
-                    Collections.sort(list);
                     return list;
                 });
     }
