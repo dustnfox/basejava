@@ -50,14 +50,33 @@ public class SqlStorage implements Storage {
 
     @Override
     public void update(Resume r) {
-        sqlHelper.execute("UPDATE resume SET full_name = ? WHERE uuid = ?", ps -> {
-            ps.setString(1, r.getFullName());
-            ps.setString(2, r.getUuid());
-            if (ps.executeUpdate() == 0) {
-                throw new NotExistStorageException(r.getUuid());
-            }
-            return null;
-        });
+        sqlHelper.transactionalExecute(conn -> {
+                    final String UUID = r.getUuid();
+                    try (PreparedStatement ps = conn.prepareStatement("UPDATE resume SET full_name = ? WHERE uuid = ?")) {
+                        ps.setString(1, r.getFullName());
+                        ps.setString(2, UUID);
+                        if (ps.executeUpdate() == 0) {
+                            throw new NotExistStorageException(UUID);
+                        }
+                    }
+                    try (PreparedStatement ps = conn.prepareStatement("INSERT INTO contact (resume_uuid, type, value) VALUES\n" +
+                            "  (?, ?, ?)\n" +
+                            "ON CONFLICT (resume_uuid, type)\n" +
+                            "DO UPDATE\n" +
+                            "SET value = ?")) {
+
+                        for (Map.Entry<ContactType, String> e : r.getContacts().entrySet()) {
+                            ps.setString(1, UUID);
+                            ps.setString(2, e.getKey().toString());
+                            ps.setString(3, e.getValue());
+                            ps.setString(4, e.getValue());
+                            ps.addBatch();
+                        }
+                        ps.executeBatch();
+                    }
+                    return null;
+                }
+        );
     }
 
     @Override
