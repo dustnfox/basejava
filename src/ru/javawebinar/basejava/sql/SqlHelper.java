@@ -5,6 +5,7 @@ import ru.javawebinar.basejava.exception.StorageException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.Collection;
 
 public class SqlHelper {
     private final ConnectionFactory connectionFactory;
@@ -39,6 +40,24 @@ public class SqlHelper {
             }
         } catch (SQLException e) {
             throw new StorageException(e);
+        }
+    }
+
+    public void executeInTransaction(String sqlStatement, Connection conn, PsProcessor processor) throws SQLException {
+        try (PreparedStatement ps = conn.prepareStatement(sqlStatement);) {
+            processor.process(ps, null);
+            ps.execute();
+        }
+    }
+
+    public <E> void executeInTransaction(String sqlStatement, Collection<E> collection, Connection conn,
+                                         PsProcessor<E> processor) throws SQLException {
+        try (PreparedStatement ps = conn.prepareStatement(sqlStatement)) {
+            for (E element : collection) {
+                processor.process(ps, element);
+                ps.addBatch();
+            }
+            ps.executeBatch();
         }
     }
 }
