@@ -46,7 +46,6 @@ public class SqlHelper {
     public void executeInTransaction(String sqlStatement, Connection conn, PsProcessor processor) throws SQLException {
         try (PreparedStatement ps = conn.prepareStatement(sqlStatement);) {
             processor.process(ps, null);
-            ps.execute();
         }
     }
 
