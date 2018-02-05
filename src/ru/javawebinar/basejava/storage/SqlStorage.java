@@ -14,9 +14,6 @@ import java.util.List;
 
 public class SqlStorage implements Storage {
     private final SqlHelper sqlHelper;
-    private final String SELECT_ON_RESUME_CONTACT_JOIN = "" +
-            "SELECT r.uuid, r.full_name, c.type, c.value " +
-            "FROM resume r LEFT JOIN contact c ON r.uuid = c.resume_uuid ";
 
     public SqlStorage(String dbUrl, String dbUser, String dbPassword) {
         sqlHelper = new SqlHelper(() -> DriverManager.getConnection(dbUrl, dbUser, dbPassword));
@@ -29,7 +26,10 @@ public class SqlStorage implements Storage {
 
     @Override
     public Resume get(String uuid) {
-        return sqlHelper.execute(SELECT_ON_RESUME_CONTACT_JOIN + "WHERE r.uuid =? ",
+        return sqlHelper.execute("" +
+                        "SELECT r.uuid, r.full_name, c.type, c.value " +
+                        "  FROM resume r LEFT JOIN contact c ON r.uuid = c.resume_uuid " +
+                        " WHERE r.uuid =? ",
                 ps -> {
                     ps.setString(1, uuid);
                     ResultSet rs = ps.executeQuery();
@@ -48,7 +48,7 @@ public class SqlStorage implements Storage {
     @Override
     public void update(Resume r) {
         sqlHelper.transactionalExecute(conn -> {
-            makeRecordInResumeTable(conn, r, true);
+            makeRecordInResumeTable(conn, r, "UPDATE resume SET full_name = ? WHERE uuid = ?");
             sqlHelper.executeInTransaction("DELETE FROM contact WHERE resume_uuid = ?",
                     conn,
                     (ps, e) -> {
@@ -63,7 +63,7 @@ public class SqlStorage implements Storage {
     @Override
     public void save(Resume r) {
         sqlHelper.transactionalExecute(conn -> {
-            makeRecordInResumeTable(conn, r, false);
+            makeRecordInResumeTable(conn, r, "INSERT INTO resume (full_name, uuid) VALUES (?,?)");
             sqlContactsInsert(conn, r);
             return null;
         });
@@ -82,7 +82,10 @@ public class SqlStorage implements Storage {
 
     @Override
     public List<Resume> getAllSorted() {
-        return sqlHelper.execute(SELECT_ON_RESUME_CONTACT_JOIN + "ORDER BY full_name,uuid",
+        return sqlHelper.execute("" +
+                        "  SELECT r.uuid, r.full_name, c.type, c.value " +
+                        "    FROM resume r LEFT JOIN contact c ON r.uuid = c.resume_uuid " +
+                        "ORDER BY full_name,uuid",
                 ps -> {
                     ResultSet rs = ps.executeQuery();
                     List<Resume> resumes = new ArrayList<>();
@@ -108,7 +111,6 @@ public class SqlStorage implements Storage {
 
 
     private void updateContactOnResultSet(Resume r, ResultSet rs) throws SQLException {
-        String value = rs.getString("value");
         String type = rs.getString("type");
         if (!rs.wasNull()) {
             r.addContact(ContactType.valueOf(type), rs.getString("value"));
@@ -128,17 +130,13 @@ public class SqlStorage implements Storage {
     }
 
 
-    private void makeRecordInResumeTable(Connection conn, Resume r, Boolean doUpdate) throws SQLException {
-        final String SQL_STMNT = doUpdate ?
-                "UPDATE resume SET full_name = ? WHERE uuid = ?" :
-                "INSERT INTO resume (full_name, uuid) VALUES (?,?)";
-
-        sqlHelper.executeInTransaction(SQL_STMNT,
+    private void makeRecordInResumeTable(Connection conn, Resume r, String sqlStatement) throws SQLException {
+        sqlHelper.executeInTransaction(sqlStatement,
                 conn,
                 (ps, e) -> {
                     ps.setString(1, r.getFullName());
                     ps.setString(2, r.getUuid());
-                    if (ps.executeUpdate() == 0 && doUpdate) {
+                    if (ps.executeUpdate() == 0) {
                         throw new NotExistStorageException(r.getUuid());
                     }
                 });
