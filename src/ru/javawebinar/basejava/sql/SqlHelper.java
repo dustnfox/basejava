@@ -4,6 +4,7 @@ import ru.javawebinar.basejava.exception.StorageException;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class SqlHelper {
@@ -15,6 +16,16 @@ public class SqlHelper {
 
     public void execute(String sql) {
         execute(sql, PreparedStatement::execute);
+    }
+
+    public void doOnRowsInTransaction(String sql, String sqlParam, Connection conn, ResultSetDataExtractor ex) throws SQLException {
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, sqlParam);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                ex.process(rs);
+            }
+        }
     }
 
     public <T> T execute(String sql, SqlExecutor<T> executor) {
