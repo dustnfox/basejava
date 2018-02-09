@@ -5,6 +5,21 @@ header {
     padding: 5px 20px;
 }
 
+table {
+    border-collapse: collapse;
+    width: 80%;
+}
+
+td, th {
+    border: 1px solid black;
+    text-align: left;
+    padding: 8px;
+}
+
+tr:nth-child(even) {
+    background-color: #eeeeee;
+}
+
 footer {
     background: none repeat scroll 0 0 #A6C9E2;
     color: #2E6E9E;
