@@ -2,6 +2,7 @@ package ru.javawebinar.basejava.util;
 
 import java.time.LocalDate;
 import java.time.Month;
+import java.time.format.DateTimeFormatter;
 
 /**
  * gkislin
@@ -13,5 +14,9 @@ public class DateUtil {
 
     public static LocalDate of(int year, Month month) {
         return LocalDate.of(year, month, 1);
+    }
+
+    public static String formatLocalDate(LocalDate localDate, String pattern) {
+        return localDate.format(DateTimeFormatter.ofPattern(pattern));
     }
 }

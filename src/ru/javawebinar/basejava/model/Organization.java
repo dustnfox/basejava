@@ -92,6 +92,10 @@ public class Organization implements Serializable {
             this.description = description == null ? "" : description;
         }
 
+        public boolean isCurrentPosition() {
+            return endDate.equals(NOW);
+        }
+
         public LocalDate getStartDate() {
             return startDate;
         }
