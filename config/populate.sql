@@ -8,12 +8,3 @@ INSERT INTO contact (resume_uuid, type, value) VALUES
 
 INSERT INTO contact (resume_uuid, type, value) VALUES
   ('7de882da-02f2-4d16-8daa-60660aaf4071', 'SKYPE', 'cute_skype_login');
-
-INSERT INTO section (resume_uuid, type, value) VALUES
-  ('7de882da-02f2-4d16-8daa-60660aaf4071', 'PERSONAL', 'Male, 32 y.o. from Russia');
-
-INSERT INTO section (resume_uuid, type, value) VALUES
-  ('7de882da-02f2-4d16-8daa-60660aaf4071', 'QUALIFICATIONS', 'Java SE
-Java EE
-Tomcat
-PostgreSQL');
