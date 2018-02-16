@@ -4,7 +4,10 @@
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-jsptaglibrary_2_1.xsd"
         version="2.1">
-
+    <!--
+    Custom taglib solution for LocalDate formatting.
+            Solution source: https://stackoverflow.com/a/35607225/8323154
+    -->
     <tlib-version>1.0</tlib-version>
     <short-name>Custom_Functions</short-name>
     <uri>localDateFormatter</uri>

@@ -1,8 +1,9 @@
 <%@ page import="ru.javawebinar.basejava.model.SectionType" %>
-<%@ page import="ru.javawebinar.basejava.model.TextSection" %>
 <%@ page contentType="text/html;charset=UTF-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%--Custom taglib solution for LocalDate formatting.
+    Solution source: https://stackoverflow.com/a/35607225/8323154--%>
 <%@ taglib prefix="f" uri="localDateFormatter" %>
 <html>
 <head>
@@ -45,7 +46,7 @@
 
             <c:when test="${e.key == SectionType.EXPERIENCE || e.key == SectionType.EDUCATION}">
                 <c:forEach var="org" items="${e.value.organizations}">
-                    <jsp:useBean id="org" type="ru.javawebinar.basejava.model.Organization"/>
+                    <jsp:useBean id="org" type="ru.javawebinar.basejava.model.Organization" scope="request"/>
                     <table cellspacing="10px">
                         <tr>
                             <td>
