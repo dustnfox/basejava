@@ -6,7 +6,7 @@ function addListItem(parentId, value) {
     const list = document.getElementById(parentId);
     const counter = list.getElementsByTagName("input")[0];
     const index = parseInt(counter.value);
-    const childId = parentId + "_" + index;
+    const childId = parentId + "_item";
     counter.value = (index + 1).toString();
     list.insertAdjacentHTML("beforeend", `
         <li>
@@ -49,7 +49,7 @@ function addEmptyPosition(parentId) {
     addPosition(parentId, "1812-06", "1812-12", false, "");
 }
 
-function addPosition(parentId, sDate, eDate, isCurrent, description) {
+function addPosition(parentId, sDate, eDate, isCurrent, title, description) {
     const list = document.getElementById(parentId);
     const counter = list.getElementsByTagName("input")[0];
     const index = parseInt(counter.value);
@@ -64,6 +64,7 @@ function addPosition(parentId, sDate, eDate, isCurrent, description) {
                     <td><input type="checkbox" name="${childId}_isNow" id="${childId}_isNow" value="${isCurrent}" 
                         onchange="disableBasedOnState('${childId}_eDate','${childId}_isNow')"></td><td>Текущая позиция</td>
                 </tr>
+                <tr><td>Название: </td><td colspan="5"><input size="80" type="text" name="${childId}_title" value="${title}"></td></tr>
                 <tr><td>Описание: </td><td colspan="5"><input size="80" type="text" name="${childId}_descr" value="${description}"></td></tr>
             </table>
         </li>`);

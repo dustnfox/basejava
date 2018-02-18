@@ -39,7 +39,7 @@
                 <c:when test="<%=sType == SectionType.PERSONAL || sType == SectionType.OBJECTIVE%>">
                     <dl>
                         <dt>${sType.title}</dt>
-                        <dd><input type="text"
+                        <dd><input type="text" name="${sType.name()}"
                                    value="${empty resume.getSection(sType) ? '' : resume.getSection(sType).content}">
                         </dd>
                     </dl>
@@ -89,7 +89,9 @@
                                                    value="${f:formatLocalDate(pos.startDate, \"uuuu-MM\")}"/>
                                             <c:set var="eDate" value="${f:formatLocalDate(pos.endDate, \"uuuu-MM\")}"/>
                                             <script>
-                                                addPosition("${oPref}", "${sDate}", "${eDate}", "${pos.isCurrentPosition()}", "${pos.description}");
+                                                addPosition("${oPref}", "${sDate}", "${eDate}", "${pos.isCurrentPosition() ? 'disabled' : ''}",
+                                                    "${pos.title}",
+                                                    "${pos.description}");
                                             </script>
                                         </c:forEach>
                                     </c:forEach>
