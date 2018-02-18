@@ -1,82 +1,84 @@
-function addOrganization(parentId) {
-    var ol = document.getElementById(parentId);
-    var counter = ol.getElementsByTagName("input")[0];
-    var index = parseInt(counter.value);
-    var childId = parentId + "_" + index;
-    counter.value = index + 1;
-
-    var name = document.createElement("input");
-    name.type = "text";
-    name.name = childId + "_name";
-    var url = document.createElement("input");
-    url.type = "text";
-    url.name = childId + "_url";
-    url.id = url.name;
-    var add = document.createElement("img");
-    add.src = "img/add.png";
-    add.onclick = function () {
-        addPosition(childId)
-    };
-    var list = document.createElement("ol");
-    list.id = childId;
-    var pos_counter = document.createElement("input");
-    pos_counter.type = "hidden";
-    pos_counter.name = childId + "_size";
-    pos_counter.value = 0;
-    var li = document.createElement("li");
-
-    li.appendChild(document.createTextNode("Наименование: "));
-    li.appendChild(name);
-    li.appendChild(document.createTextNode("URL: "));
-    li.appendChild(url);
-    var h = document.createElement("h4");
-    h.appendChild(document.createTextNode("Позиции: "));
-    h.appendChild(add);
-    li.appendChild(h);
-    li.appendChild(list);
-    list.appendChild(pos_counter);
-
-    ol.appendChild(li);
+function addEmptyListItem(parentId) {
+    addListItem(parentId, "");
 }
 
-function addPosition(parentId) {
-    var ol = document.getElementById(parentId);
-    var counter = ol.getElementsByTagName("input")[0];
-    var index = parseInt(counter.value);
-    var childId = parentId + "_" + index;
-    counter.value = index + 1;
-    var sd = document.createElement("input");
-    sd.type = "month";
-    sd.name = childId + "_sDate";
-    var ed = document.createElement("input");
-    ed.type = "month";
-    ed.name = childId + "_eDate";
-    ed.id = ed.name;
-    var chk = document.createElement("input");
-    chk.type = "checkbox";
-    chk.name = childId + "_isNow";
-    chk.id = chk.name;
-    chk.checked = false;
-    chk.onclick = function () {
-        disableBasedOnState(ed.id, chk.id)
-    };
-    var desc = document.createElement("input");
-    desc.type = "text";
-    desc.name = childId + "_descr";
-    desc.size = 80;
-    var sDateText = document.createTextNode("С: ");
-    var eDateText = document.createTextNode("По: ");
-    var currentText = document.createTextNode("Текущая<br>Описание:");
+function addListItem(parentId, value) {
+    const list = document.getElementById(parentId);
+    const counter = list.getElementsByTagName("input")[0];
+    const index = parseInt(counter.value);
+    const childId = parentId + "_" + index;
+    counter.value = (index + 1).toString();
+    list.insertAdjacentHTML("beforeend", `
+        <li>
+            <input size="30" name="${childId}" type="text" value="${value}">
+        </li>`);
+}
 
-    var li = document.createElement("li");
-    li.appendChild(sDateText);
-    li.appendChild(sd);
-    li.appendChild(eDateText);
-    li.appendChild(ed);
-    li.appendChild(chk);
-    li.insertAdjacentHTML("beforeend", "Текущая<br>Описание:<br>");
-    li.appendChild(desc);
-    ol.appendChild(li);
+function addEmptyOrganization(parentId) {
+    addOrganization(parentId, "", "");
+}
+
+function addOrganization(parentId, name, url) {
+    const list = document.getElementById(parentId);
+    const counter = list.getElementsByTagName("input")[0];
+    const index = parseInt(counter.value);
+    const childId = parentId + "_" + index;
+    counter.value = (index + 1).toString();
+    list.insertAdjacentHTML("beforeend", `
+        <li>
+            <table>
+               <tr>
+                    <td>Наименование: </td>
+                    <td><input name="${childId}_name" type="text" value="${name}"></td>
+               </tr>
+               <tr>
+                    <td>URL: </td>
+                    <td><input name="${childId}_url" type="text" value="${url}">
+                    </td>
+               </tr>
+            </table>
+            <p>Позиции <img src="img/add.png" onclick="addEmptyPosition('${childId}')"/></p>
+            <ul id="${childId}">
+                <input name="${childId}_size" type="hidden" value="0">           
+            </ul>
+            <button onclick="removeLastChild('${childId}')">Удалить последний элемент  <img src="img/delete.png"></button>
+        </li>`);
+}
+
+function addEmptyPosition(parentId) {
+    addPosition(parentId, "1812-06", "1812-12", false, "");
+}
+
+function addPosition(parentId, sDate, eDate, isCurrent, description) {
+    const list = document.getElementById(parentId);
+    const counter = list.getElementsByTagName("input")[0];
+    const index = parseInt(counter.value);
+    const childId = parentId + "_" + index;
+    counter.value = (index + 1).toString();
+    list.insertAdjacentHTML("beforeend", `
+        <li>
+            <table>
+                <tr>
+                    <td>С: </td>  <td><input type="month" name="${childId}_sDate" value="${sDate}"></td>
+                    <td>По: </td> <td><input type="month" name="${childId}_eDate" id="${childId}_eDate" value="${eDate}"></td>
+                    <td><input type="checkbox" name="${childId}_isNow" id="${childId}_isNow" value="${isCurrent}" 
+                        onchange="disableBasedOnState('${childId}_eDate','${childId}_isNow')"></td><td>Текущая позиция</td>
+                </tr>
+                <tr><td>Описание: </td><td colspan="5"><input size="80" type="text" name="${childId}_descr" value="${description}"></td></tr>
+            </table>
+        </li>`);
+
+}
+
+function removeLastChild(parentId) {
+    const list = document.getElementById(parentId);
+    const counter = list.getElementsByTagName("input")[0];
+    const index = parseInt(counter.value);
+    if (index > 0) {
+        list.removeChild(list.lastChild);
+        counter.value = (index - 1).toString();
+    }
+    return false;
 }
 
 function disableBasedOnState(targetId, controllerId) {
