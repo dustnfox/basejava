@@ -1,4 +1,5 @@
 <%@ page import="ru.javawebinar.basejava.model.SectionType" %><%--suppress HtmlFormInputWithoutLabel --%>
+<%@ page import="ru.javawebinar.basejava.model.ContactType" %><%--suppress HtmlFormInputWithoutLabel --%>
 <%@ page contentType="text/html;charset=UTF-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%--Custom taglib solution for LocalDate formatting.
@@ -22,8 +23,8 @@
             <dd><input type="text" name="fullName" size=50 value="${resume.fullName}"></dd>
         </dl>
         <h3>Контакты:</h3>
-        <%--@elvariable id="contactTypes" type="java.util.List<ru.javawebinar.basejava.model.ContactType>"--%>
-        <c:forEach var="cType" items="${contactTypes}">
+
+        <c:forEach var="cType" items="${ContactType.values()}">
             <dl>
                 <dt>${cType.title}</dt>
                 <dd><input type="text" name="${cType.name()}" size=30 value="${resume.getContact(cType)}"></dd>
@@ -32,7 +33,7 @@
         <br>
         <h3>Разделы:</h3>
 
-        <c:forEach var="sType" items="${sectionTypes}">
+        <c:forEach var="sType" items="${SectionType.values()}">
             <jsp:useBean id="sType" type="ru.javawebinar.basejava.model.SectionType"/>
             <c:choose>
 
@@ -54,15 +55,16 @@
                                        value=${empty resume.getSection(sType) ? 0 : resume.getSection(sType).items.size()}>
                                 <c:if test="${not empty resume.getSection(sType)}">
                                     <c:forEach var="item" items="${resume.getSection(sType).items}" varStatus="i_i">
-                                        <script>
-                                            addListItem("${sType.name()}", "${item}");
-                                        </script>
+                                        <li>
+                                            <input size="30" name="${sType.name()}_item" type="text" value="${item}"/>
+                                        </li>
                                     </c:forEach>
                                 </c:if>
                             </ul>
                         </dd>
                         <br>
-                        <button onclick="removeLastChild('${sType.name()}')">Удалить последний элемент <img
+                        <button type="button" onclick="removeLastChild('${sType.name()}')">Удалить последний элемент
+                            <img
                                 src="img/delete.png"></button>
                     </dl>
                 </c:when>
@@ -75,31 +77,83 @@
                         <dd>
                             <ul id="${sType.name()}">
                             <input type="hidden" name="${sType.name()}_size" id="${sType.name()}_size"
-                                   value=0>
+                                   value=${empty resume.getSection(sType) ? 0 : resume.getSection(sType).organizations.size()}>
                                 <c:if test="${not empty resume.getSection(sType)}">
                                     <c:forEach var="org" items="${resume.getSection(sType).organizations}"
                                                varStatus="org_i">
                                         <c:set var="oPref" value="${sType.name()}_${org_i.index}"/>
-                                        <script>
-                                            addOrganization("${sType.name()}", "${org.homePage.name}", "${org.homePage.url}");
-                                        </script>
+                                        <li>
+                                            <table>
+                                                <tr>
+                                                    <td>Наименование:</td>
+                                                    <td><input name="${oPref}_name" type="text"
+                                                               value="${org.homePage.name}"></td>
+                                                </tr>
+                                                <tr>
+                                                    <td>URL:</td>
+                                                    <td><input name="${oPref}_url" type="text"
+                                                               value="${org.homePage.url}">
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                            <p>Позиции <img src="img/add.png" onclick="addEmptyPosition('${oPref}')"/>
+                                            </p>
+                                            <ul id="${oPref}">
+                                                <input name="${oPref}_size" type="hidden"
+                                                       value="${org.positions.size()}">
+                                            </ul>
+                                            <button type="button" onclick="removeLastChild('${oPref}')">
+                                                Удалить последний элемент <img src="img/delete.png">
+                                            </button>
+                                        </li>
 
                                         <c:forEach var="pos" items="${org.positions}" varStatus="pos_i">
+                                            <c:set var="pPref" value="${oPref}_${pos_i.index}"/>
                                             <c:set var="sDate"
                                                    value="${f:formatLocalDate(pos.startDate, \"uuuu-MM\")}"/>
                                             <c:set var="eDate" value="${f:formatLocalDate(pos.endDate, \"uuuu-MM\")}"/>
-                                            <script>
-                                                addPosition("${oPref}", "${sDate}", "${eDate}", "${pos.isCurrentPosition() ? 'disabled' : ''}",
-                                                    "${pos.title}",
-                                                    "${pos.description}");
-                                            </script>
+                                            <li>
+                                                <table>
+                                                    <tr>
+                                                        <td>С:</td>
+                                                        <td><input type="month" name="${pPref}_sDate"
+                                                                   value="${sDate}"></td>
+                                                        <td>По:</td>
+                                                        <td><input type="month" name="${pPref}_eDate"
+                                                                   id="${pPref}_eDate"
+                                                                   value="${eDate}" ${pos.isCurrentPosition() ? " disabled" : ""}/>
+                                                        </td>
+                                                        <td><input type="checkbox" name="${pPref}_isNow"
+                                                                   id="${pPref}_isNow"
+                                                            ${pos.isCurrentPosition() ? "checked" : ""}
+                                                                   onchange="disableBasedOnState('${pPref}_eDate','${pPref}_isNow')">
+                                                        </td>
+                                                        <td>Текущая позиция</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>Название:</td>
+                                                        <td colspan="5">
+                                                            <input size="80" type="text" name="${pPref}_title"
+                                                                   value="${pos.title}">
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>Описание:</td>
+                                                        <td colspan="5">
+                                                            <input size="80" type="text" name="${pPref}_descr"
+                                                                   value="${pos.description}">
+                                                        </td>
+                                                    </tr>
+                                                </table>
+                                            </li>
                                         </c:forEach>
                                     </c:forEach>
                                 </c:if>
                             </ul>
                         </dd>
                         <br>
-                        <button onclick="removeLastChild('${sType.name()}')">Удалить последний элемент <img
+                        <button type="button" onclick="removeLastChild('${sType.name()}')">Удалить последний элемент
+                            <img
                                 src="img/delete.png"></button>
                     </dl>
                 </c:when>

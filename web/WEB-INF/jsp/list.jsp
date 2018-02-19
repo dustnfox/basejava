@@ -29,6 +29,7 @@
             </tr>
         </c:forEach>
     </table>
+    <a href="resume?action=create">Создать резюме</a>
 </section>
 <jsp:include page="fragments/footer.jsp"/>
 </body>

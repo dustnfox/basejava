@@ -1,6 +1,7 @@
 package ru.javawebinar.basejava.web;
 
 import ru.javawebinar.basejava.Config;
+import ru.javawebinar.basejava.exception.NotExistStorageException;
 import ru.javawebinar.basejava.model.*;
 import ru.javawebinar.basejava.storage.Storage;
 
@@ -26,34 +27,28 @@ public class ResumeServlet extends HttpServlet {
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
         storage = Config.get().getStorage();
-        // Solution for iteration on enumeration.
-        // According to https://stackoverflow.com/a/6740072/8323154
-        config.getServletContext().setAttribute("contactTypes", ContactType.values());
-        config.getServletContext().setAttribute("sectionTypes", SectionType.values());
     }
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws javax.servlet.ServletException, IOException {
         request.setCharacterEncoding("UTF-8");
         String uuid = request.getParameter("uuid");
         String fullName = request.getParameter("fullName");
+        Resume r = new Resume(uuid, fullName);
 
-        Resume r = uuid == null ? new Resume(fullName) : storage.get(uuid);
+        updateResumeFromRequest(r, request);
 
-        updateResumeFromRequest(r, request.getParameterMap());
-
-        if (uuid == null) {
-            storage.save(r);
-        } else {
+        try {
             storage.update(r);
+        } catch (NotExistStorageException e) {
+            storage.save(r);
         }
 
         response.sendRedirect("resume");
     }
 
-    private void updateResumeFromRequest(Resume r, Map<String, String[]> paramMap) {
-        r.setFullName(paramMap.get("fullName")[0]);
+    private void updateResumeFromRequest(Resume r, HttpServletRequest request) {
         for (ContactType type : ContactType.values()) {
-            String value = paramMap.get(type.name())[0];
+            String value = request.getParameter(type.name());
             if (value != null && !value.trim().isEmpty()) {
                 r.addContact(type, value);
             } else {
@@ -67,14 +62,14 @@ public class ResumeServlet extends HttpServlet {
             switch (type) {
                 case PERSONAL:
                 case OBJECTIVE:
-                    String val = paramMap.get(type.name())[0];
+                    String val = request.getParameter(type.name());
                     if (!val.trim().isEmpty()) {
                         section = new TextSection(val);
                     }
                     break;
                 case QUALIFICATIONS:
                 case ACHIEVEMENT:
-                    String[] values = paramMap.get(type.name() + "_item");
+                    String[] values = request.getParameterValues(type.name() + "_item");
                     if (values != null) {
                         List<String> items = Arrays.stream(values)
                                 .map(String::trim)
@@ -87,11 +82,11 @@ public class ResumeServlet extends HttpServlet {
                     break;
                 case EXPERIENCE:
                 case EDUCATION:
-                    int sectionSize = Integer.parseInt(paramMap.get(type.name() + "_size")[0]);
+                    int sectionSize = Integer.parseInt(request.getParameter(type.name() + "_size"));
                     if (sectionSize > 0) {
                         List<Organization> organizations = new ArrayList<>(sectionSize);
                         for (int i = 0; i < sectionSize; i++) {
-                            Organization org = getOrganization(paramMap, type.name() + "_" + i);
+                            Organization org = getOrganization(request, type.name() + "_" + i);
                             if (org != null) {
                                 organizations.add(org);
                             }
@@ -108,25 +103,21 @@ public class ResumeServlet extends HttpServlet {
         }
     }
 
-    private Organization getOrganization(Map<String, String[]> paramMap, String prefix) {
-        String name = paramMap.get(prefix + "_name")[0].trim();
-        String url = paramMap.get(prefix + "_url")[0].trim();
+    private Organization getOrganization(HttpServletRequest request, String prefix) {
+        String name = request.getParameter(prefix + "_name").trim();
+        String url = request.getParameter(prefix + "_url").trim();
 
-        if (name.length() == 0) {
-            return null;
-        }
-
-        int orgSize = Integer.parseInt(paramMap.get(prefix + "_size")[0]);
+        int orgSize = Integer.parseInt(request.getParameter(prefix + "_size"));
         if (orgSize == 0) {
             return new Organization(name, url);
         }
 
         List<Organization.Position> positions = new ArrayList<>(orgSize);
         for (int i = 0; i < orgSize; i++) {
-            String startDate = paramMap.get(prefix + "_" + i + "_sDate")[0] + "-01";
-            String title = paramMap.get(prefix + "_" + i + "_title")[0].trim();
-            String description = paramMap.get(prefix + "_" + i + "_descr")[0].trim();
-            boolean isNow = paramMap.get(prefix + "_" + i + "_isNow") == null;
+            String startDate = request.getParameter(prefix + "_" + i + "_sDate") + "-01";
+            String title = request.getParameter(prefix + "_" + i + "_title").trim();
+            String description = request.getParameter(prefix + "_" + i + "_descr").trim();
+            boolean isNow = request.getParameter(prefix + "_" + i + "_isNow") != null;
 
             if (title.length() == 0) {
                 continue;
@@ -136,7 +127,7 @@ public class ResumeServlet extends HttpServlet {
             if (isNow) {
                 positions.add(new Organization.Position(sd.getYear(), sd.getMonth(), title, description));
             } else {
-                String endDate = paramMap.get(prefix + "_" + i + "_eDate")[0] + "-01";
+                String endDate = request.getParameter(prefix + "_" + i + "_eDate") + "-01";
                 LocalDate ed = LocalDate.parse(endDate);
                 positions.add(new Organization.Position(sd, ed, title, description));
             }
@@ -164,6 +155,9 @@ public class ResumeServlet extends HttpServlet {
             case "view":
             case "edit":
                 r = storage.get(uuid);
+                break;
+            case "create":
+                r = new Resume("");
                 break;
             default:
                 throw new IllegalArgumentException("Action " + action + " is illegal");

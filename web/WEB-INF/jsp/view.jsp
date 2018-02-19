@@ -46,7 +46,6 @@
 
             <c:when test="${e.key == SectionType.EXPERIENCE || e.key == SectionType.EDUCATION}">
                 <c:forEach var="org" items="${e.value.organizations}">
-                    <jsp:useBean id="org" type="ru.javawebinar.basejava.model.Organization" scope="request"/>
                     <table cellspacing="10px">
                         <tr>
                             <td>
