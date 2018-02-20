@@ -41,7 +41,7 @@ function addOrganization(parentId, name, url) {
             <ul id="${childId}">
                 <input name="${childId}_size" type="hidden" value="0">           
             </ul>
-            <button onclick="removeLastChild('${childId}')">Удалить последний элемент  <img src="img/delete.png"></button>
+            <button type="button" onclick="removeLastChild('${childId}')">Удалить последний элемент  <img src="img/delete.png"></button>
         </li>`);
 }
 
@@ -76,7 +76,8 @@ function removeLastChild(parentId) {
     const counter = list.getElementsByTagName("input")[0];
     const index = parseInt(counter.value);
     if (index > 0) {
-        list.removeChild(list.lastChild);
+        const items = list.getElementsByTagName("li");
+        list.removeChild(items[items.length - 1]);
         counter.value = (index - 1).toString();
     }
     return false;

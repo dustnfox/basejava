@@ -10,6 +10,7 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <link rel="stylesheet" href="css/style.css">
     <script src="<c:url value='/scripts/jsutils.js'/>"></script>
+    <jsp:useBean id="isNew" type="java.lang.String" scope="request"/>
     <jsp:useBean id="resume" type="ru.javawebinar.basejava.model.Resume" scope="request"/>
     <title>Резюме ${resume.fullName}</title>
 </head>
@@ -17,6 +18,7 @@
 <jsp:include page="fragments/header.jsp"/>
 <section>
     <form method="post" action="resume" enctype="application/x-www-form-urlencoded">
+        <input type="hidden" name="new" value="${isNew}">
         <input type="hidden" name="uuid" value="${resume.uuid}">
         <dl>
             <dt>Имя:</dt>
@@ -152,9 +154,9 @@
                             </ul>
                         </dd>
                         <br>
-                        <button type="button" onclick="removeLastChild('${sType.name()}')">Удалить последний элемент
-                            <img
-                                src="img/delete.png"></button>
+                        <button type="button" onclick="removeLastChild('${sType.name()}')">
+                            Удалить последний элемент <img src="img/delete.png">
+                        </button>
                     </dl>
                 </c:when>
 

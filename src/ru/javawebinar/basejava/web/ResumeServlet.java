@@ -1,7 +1,6 @@
 package ru.javawebinar.basejava.web;
 
 import ru.javawebinar.basejava.Config;
-import ru.javawebinar.basejava.exception.NotExistStorageException;
 import ru.javawebinar.basejava.model.*;
 import ru.javawebinar.basejava.storage.Storage;
 
@@ -12,11 +11,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 public class ResumeServlet extends HttpServlet {
@@ -37,10 +34,10 @@ public class ResumeServlet extends HttpServlet {
 
         updateResumeFromRequest(r, request);
 
-        try {
-            storage.update(r);
-        } catch (NotExistStorageException e) {
+        if (request.getParameter("new").equals("true")) {
             storage.save(r);
+        } else {
+            storage.update(r);
         }
 
         response.sendRedirect("resume");
@@ -155,9 +152,11 @@ public class ResumeServlet extends HttpServlet {
             case "view":
             case "edit":
                 r = storage.get(uuid);
+                request.setAttribute("isNew", "false");
                 break;
             case "create":
                 r = new Resume("");
+                request.setAttribute("isNew", "true");
                 break;
             default:
                 throw new IllegalArgumentException("Action " + action + " is illegal");
