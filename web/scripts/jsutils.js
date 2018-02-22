@@ -41,7 +41,7 @@ function addOrganization(parentId, name, url) {
             <ul id="${childId}">
                 <input name="${childId}_size" type="hidden" value="0">           
             </ul>
-            <button type="button" onclick="removeLastChild('${childId}')">Удалить последний элемент  <img src="img/delete.png"></button>
+            <button type="button" onclick="removeLastChild('${childId}')">Удалить последнюю позицию  <img src="img/delete.png"></button>
         </li>`);
 }
 
@@ -65,10 +65,9 @@ function addPosition(parentId, sDate, eDate, isCurrent, title, description) {
                         onchange="disableBasedOnState('${childId}_eDate','${childId}_isNow')"></td><td>Текущая позиция</td>
                 </tr>
                 <tr><td>Название: </td><td colspan="5"><input size="80" type="text" name="${childId}_title" value="${title}"></td></tr>
-                <tr><td>Описание: </td><td colspan="5"><input size="80" type="text" name="${childId}_descr" value="${description}"></td></tr>
+                <tr><td>Описание: </td><td colspan="5"><textarea cols=80 rows=5 name="${childId}_descr"></textarea></td></tr>
             </table>
         </li>`);
-
 }
 
 function removeLastChild(parentId) {

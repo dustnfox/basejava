@@ -66,7 +66,9 @@
                                         <jsp:useBean id="pos"
                                                      type="ru.javawebinar.basejava.model.Organization.Position"/>
                                         <li>
-                                                ${f:formatLocalDate(pos.startDate, "MM.uuuu")} -
+                                            <table>
+                                                <tr>
+                                                    <td>${f:formatLocalDate(pos.startDate, "MM.uuuu")} -
                                             <c:choose>
                                                 <c:when test="${pos.currentPosition}">
                                                     Now
@@ -74,8 +76,15 @@
                                                 <c:otherwise>
                                                     ${f:formatLocalDate(pos.endDate, "MM.uuuu")}
                                                 </c:otherwise>
-                                            </c:choose>
-                                            : ${pos.description} </li>
+                                            </c:choose></td>
+                                                    <td><b>${pos.title}</b></td>
+                                                </tr>
+                                                <tr>
+                                                    <td></td>
+                                                    <td>${pos.description}</td>
+                                                </tr>
+                                            </table>
+                                        </li>
                                     </c:forEach>
                                 </ul>
                             </td>

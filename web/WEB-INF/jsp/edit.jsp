@@ -39,11 +39,20 @@
             <jsp:useBean id="sType" type="ru.javawebinar.basejava.model.SectionType"/>
             <c:choose>
 
-                <c:when test="<%=sType == SectionType.PERSONAL || sType == SectionType.OBJECTIVE%>">
+                <c:when test="<%= sType == SectionType.OBJECTIVE%>">
                     <dl>
                         <dt>${sType.title}</dt>
                         <dd><input type="text" name="${sType.name()}"
                                    value="${empty resume.getSection(sType) ? '' : resume.getSection(sType).content}">
+                        </dd>
+                    </dl>
+                </c:when>
+
+                <c:when test="<%=sType == SectionType.PERSONAL %>">
+                    <dl>
+                        <dt>${sType.title}</dt>
+                        <dd><textarea cols=80 rows=5 name="${sType.name()}"
+                        >${empty resume.getSection(sType) ? '' : resume.getSection(sType).content}</textarea>
                         </dd>
                     </dl>
                 </c:when>
@@ -103,11 +112,6 @@
                                             <ul id="${oPref}">
                                                 <input name="${oPref}_size" type="hidden"
                                                        value="${org.positions.size()}">
-                                            </ul>
-                                            <button type="button" onclick="removeLastChild('${oPref}')">
-                                                Удалить последний элемент <img src="img/delete.png">
-                                            </button>
-                                        </li>
 
                                         <c:forEach var="pos" items="${org.positions}" varStatus="pos_i">
                                             <c:set var="pPref" value="${oPref}_${pos_i.index}"/>
@@ -142,20 +146,25 @@
                                                     <tr>
                                                         <td>Описание:</td>
                                                         <td colspan="5">
-                                                            <input size="80" type="text" name="${pPref}_descr"
-                                                                   value="${pos.description}">
+                                                            <textarea cols=80 rows=5 name="${pPref}_descr"
+                                                            >${pos.description}</textarea>
                                                         </td>
                                                     </tr>
                                                 </table>
                                             </li>
                                         </c:forEach>
+                                            </ul>
+                                            <button type="button" onclick="removeLastChild('${oPref}')">
+                                                Удалить последнюю позицию <img src="img/delete.png">
+                                            </button>
+                                        </li>
                                     </c:forEach>
                                 </c:if>
                             </ul>
                         </dd>
                         <br>
                         <button type="button" onclick="removeLastChild('${sType.name()}')">
-                            Удалить последний элемент <img src="img/delete.png">
+                            Удалить последнюю организацию <img src="img/delete.png">
                         </button>
                     </dl>
                 </c:when>

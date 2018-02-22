@@ -3,6 +3,7 @@ package ru.javawebinar.basejava.web;
 import ru.javawebinar.basejava.Config;
 import ru.javawebinar.basejava.model.*;
 import ru.javawebinar.basejava.storage.Storage;
+import ru.javawebinar.basejava.util.HttpUtil;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -30,14 +31,16 @@ public class ResumeServlet extends HttpServlet {
         request.setCharacterEncoding("UTF-8");
         String uuid = request.getParameter("uuid");
         String fullName = request.getParameter("fullName");
-        Resume r = new Resume(uuid, fullName);
+        if (!HttpUtil.isEmpty(uuid) && !HttpUtil.isEmpty(fullName)) {
+            Resume r = new Resume(uuid, fullName);
 
-        updateResumeFromRequest(r, request);
+            updateResumeFromRequest(r, request);
 
-        if (request.getParameter("new").equals("true")) {
-            storage.save(r);
-        } else {
-            storage.update(r);
+            if (request.getParameter("new").equals("true")) {
+                storage.save(r);
+            } else {
+                storage.update(r);
+            }
         }
 
         response.sendRedirect("resume");
@@ -60,7 +63,7 @@ public class ResumeServlet extends HttpServlet {
                 case PERSONAL:
                 case OBJECTIVE:
                     String val = request.getParameter(type.name());
-                    if (!val.trim().isEmpty()) {
+                    if (!HttpUtil.isEmpty(val)) {
                         section = new TextSection(val);
                     }
                     break;
@@ -101,9 +104,11 @@ public class ResumeServlet extends HttpServlet {
     }
 
     private Organization getOrganization(HttpServletRequest request, String prefix) {
-        String name = request.getParameter(prefix + "_name").trim();
-        String url = request.getParameter(prefix + "_url").trim();
-
+        String name = request.getParameter(prefix + "_name");
+        String url = request.getParameter(prefix + "_url");
+        if (HttpUtil.isEmpty(name)) {
+            return null;
+        }
         int orgSize = Integer.parseInt(request.getParameter(prefix + "_size"));
         if (orgSize == 0) {
             return new Organization(name, url);
@@ -112,11 +117,11 @@ public class ResumeServlet extends HttpServlet {
         List<Organization.Position> positions = new ArrayList<>(orgSize);
         for (int i = 0; i < orgSize; i++) {
             String startDate = request.getParameter(prefix + "_" + i + "_sDate") + "-01";
-            String title = request.getParameter(prefix + "_" + i + "_title").trim();
+            String title = request.getParameter(prefix + "_" + i + "_title");
             String description = request.getParameter(prefix + "_" + i + "_descr").trim();
             boolean isNow = request.getParameter(prefix + "_" + i + "_isNow") != null;
 
-            if (title.length() == 0) {
+            if (HttpUtil.isEmpty(title)) {
                 continue;
             }
 

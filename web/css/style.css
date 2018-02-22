@@ -45,6 +45,10 @@ li {
     margin: 15px 0;
 }
 
+textarea {
+    text-align: left;
+}
+
 a[href^="skype:"] {
     padding-left: 20px !important;
     background: url(../img/skype.png) no-repeat center left;
